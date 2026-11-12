@@ -1,0 +1,33 @@
+# This is an example configuration file
+# To learn more, see the full config.yaml reference: https://continue.dev
+
+name: Example Config
+version: 1.0.0
+schema: v1
+
+# Define which models can be used
+# https://continue.dev
+models:
+  - name: llama
+    provider: ollama
+    model: llama3.2:3b
+    apiBase: http://192.168.45.150:11434
+    roles:
+      - apply
+      - autocomplete
+      - chat
+      - edit
+  - name: Claude 4 Sonnet
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    apiKey: ${{ secrets.ANTHROPIC_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 200000
+      maxTokens: 64000
+    capabilities:
+      - tool_use
+      - image_input
