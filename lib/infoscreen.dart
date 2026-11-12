@@ -69,10 +69,10 @@ class _InfoScreenState extends State<InfoScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           decoration: BoxDecoration(
-            color: widget.primaryColor.withOpacity(0.5),
+            color: widget.primaryColor.withValues(alpha: 0.5),
             border: Border(
               bottom: BorderSide(
-                color: widget.accentColor.withOpacity(0.5),
+                color: widget.accentColor.withValues(alpha: 0.5),
                 width: 1.5,
               ),
             ),
@@ -165,11 +165,11 @@ class _InfoScreenState extends State<InfoScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(30),
                         decoration: BoxDecoration(
-                          color: widget.primaryColor.withOpacity(0.5),
+                          color: widget.primaryColor.withValues(alpha: 0.5),
                           border: Border.all(
                             color: _currentPage == index
                                 ? widget.accentColor
-                                : widget.accentColor.withOpacity(0.3),
+                                : widget.accentColor.withValues(alpha: 0.3),
                             width: _currentPage == index ? 2 : 1.5,
                           ),
                         ),
@@ -250,7 +250,7 @@ class _InfoScreenState extends State<InfoScreen> {
     if (widget.prayerTimes.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      color: widget.primaryColor.withOpacity(0.8),
+      color: widget.primaryColor.withValues(alpha: 0.8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: widget.prayerTimes.map((pt) {

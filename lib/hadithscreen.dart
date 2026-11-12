@@ -90,8 +90,8 @@ class _IdleScreenState extends State<IdleScreen> {
     double size = prefs.getDouble('${key}_size') ?? defaultStyle.fontSize!;
     int colorVal =
         prefs.getInt('${key}_color') ??
-        defaultStyle.color?.value ??
-        Colors.white.value;
+        defaultStyle.color?.toARGB32() ??
+        Colors.white.toARGB32();
     String font = prefs.getString('${key}_font') ?? 'Roboto';
 
     return defaultStyle.copyWith(
@@ -168,9 +168,9 @@ class _IdleScreenState extends State<IdleScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           decoration: BoxDecoration(
-            color: widget.primaryColor.withOpacity(0.5),
+            color: widget.primaryColor.withValues(alpha: 0.5),
             border: Border(
-              bottom: BorderSide(color: widget.accentColor.withOpacity(0.5), width: 1.5),
+              bottom: BorderSide(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
             ),
           ),
           child: Row(
@@ -227,10 +227,10 @@ class _IdleScreenState extends State<IdleScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(32.0),
                           decoration: BoxDecoration(
-                            color: widget.primaryColor.withOpacity(0.5),
+                            color: widget.primaryColor.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: widget.accentColor.withOpacity(0.4),
+                              color: widget.accentColor.withValues(alpha: 0.4),
                               width: 1.5,
                             ),
                             boxShadow: const [
@@ -278,7 +278,7 @@ class _IdleScreenState extends State<IdleScreen> {
     if (widget.prayerTimes.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      color: widget.primaryColor.withOpacity(0.8),
+      color: widget.primaryColor.withValues(alpha: 0.8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: widget.prayerTimes.map((pt) {

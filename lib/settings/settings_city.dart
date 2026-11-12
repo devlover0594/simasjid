@@ -210,7 +210,7 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldPop = await _onWillPop();
           if (shouldPop && mounted) {

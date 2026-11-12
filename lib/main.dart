@@ -60,7 +60,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SIMasjid',
       theme: ThemeData.dark().copyWith(
-        focusColor: Colors.tealAccent.withOpacity(0.4),
+        focusColor: Colors.tealAccent.withValues(alpha: 0.4),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       localizationsDelegates: const [
@@ -568,7 +568,7 @@ class _KioskScreenState extends State<KioskScreen>
     _textStyles.forEach((key, style) {
       textStylesMap[key] = {
         'size': style.fontSize ?? 20.0,
-        'color': style.color?.value ?? 0xFFFFFFFF,
+        'color': style.color?.toARGB32() ?? 0xFFFFFFFF,
         'font': style.fontFamily ?? 'Roboto',
       };
     });
@@ -633,8 +633,8 @@ class _KioskScreenState extends State<KioskScreen>
       imsakiyahCity: _imsakiyahCity ?? '',
       powerTvEnabled: _powerTvEnabled,
       powerSchedules: _powerSchedules,
-      themePrimaryColor: _themePrimaryColor.value,
-      themeAccentColor: _themeAccentColor.value,
+      themePrimaryColor: _themePrimaryColor.toARGB32(),
+      themeAccentColor: _themeAccentColor.toARGB32(),
       bgApplyAll: _bgApplyAll,
       logoPath: _logoPath,
       showLogo: _showLogo,
@@ -672,7 +672,7 @@ class _KioskScreenState extends State<KioskScreen>
     _textStyles.forEach((key, style) {
       styleData['style_${key}_size'] = (style.fontSize ?? 20.0).toString();
       styleData['style_${key}_font'] = style.fontFamily ?? 'Roboto';
-      final colorValue = style.color?.value ?? 0xFFFFFFFF;
+      final colorValue = style.color?.toARGB32() ?? 0xFFFFFFFF;
       styleData['style_${key}_color'] =
           '#${(colorValue & 0x00FFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
     });
@@ -1039,7 +1039,7 @@ class _KioskScreenState extends State<KioskScreen>
       if (params['theme_accent'] != null) {
         await prefs.setInt(
           'theme_accent_color',
-          int.tryParse(params['theme_accent']!) ?? Colors.amber.value,
+          int.tryParse(params['theme_accent']!) ?? Colors.amber.toARGB32(),
         );
       }
 
@@ -1962,7 +1962,7 @@ class _KioskScreenState extends State<KioskScreen>
     _textStyles = {};
     defaultStyles.forEach((key, style) {
       double size = prefs.getDouble('${key}_size') ?? style.fontSize!;
-      int colorVal = prefs.getInt('${key}_color') ?? style.color!.value;
+      int colorVal = prefs.getInt('${key}_color') ?? style.color!.toARGB32();
       String font =
           prefs.getString('${key}_font') ?? style.fontFamily ?? 'Roboto';
 
@@ -2214,7 +2214,7 @@ class _KioskScreenState extends State<KioskScreen>
       prefs.getInt('theme_primary_color') ?? 0xFF064E3B,
     );
     _themeAccentColor = Color(
-      prefs.getInt('theme_accent_color') ?? Colors.amber.value,
+      prefs.getInt('theme_accent_color') ?? Colors.amber.toARGB32(),
     );
 
     // Load Hijri Anchor (Memori Terakhir)
@@ -3152,7 +3152,7 @@ class _KioskScreenState extends State<KioskScreen>
                       child: Text(
                         "KORNET INTER MEDIA | 2026",
                         style: TextStyle(
-                          color: Colors.white.withOpacity(1.0),
+                          color: Colors.white.withValues(alpha: 1.0),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           shadows: const [
@@ -3406,12 +3406,12 @@ class _KioskScreenState extends State<KioskScreen>
       width: 140,
       height: 140,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.35),
+        color: Colors.black.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white24, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -3489,10 +3489,10 @@ class _KioskScreenState extends State<KioskScreen>
             width: double.infinity, // Ensure full width
             padding: const EdgeInsets.fromLTRB(30, 25, 30, 25),
             decoration: BoxDecoration(
-              color: _themePrimaryColor.withOpacity(0.5),
+              color: _themePrimaryColor.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: _themeAccentColor.withOpacity(0.4),
+                color: _themeAccentColor.withValues(alpha: 0.4),
                 width: 1.5,
               ),
             ),
@@ -3543,7 +3543,7 @@ class _KioskScreenState extends State<KioskScreen>
                           color: Colors.white,
                           shadows: [
                             Shadow(
-                              color: _themeAccentColor.withOpacity(0.5),
+                              color: _themeAccentColor.withValues(alpha: 0.5),
                               blurRadius: 10,
                             ),
                           ],
@@ -3616,10 +3616,10 @@ class _KioskScreenState extends State<KioskScreen>
               filter: ui.ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: _themePrimaryColor.withOpacity(0.5),
+                  color: _themePrimaryColor.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: _themeAccentColor.withOpacity(0.4),
+                    color: _themeAccentColor.withValues(alpha: 0.4),
                     width: 1.5,
                   ),
                 ),
@@ -3864,26 +3864,26 @@ class _PrayerTimeCardState extends State<PrayerTimeCard>
                       end: Alignment.bottomRight,
                       colors: widget.isNext
                           ? [
-                              widget.accentColor.withOpacity(0.4),
-                              widget.primaryColor.withOpacity(0.8),
+                              widget.accentColor.withValues(alpha: 0.4),
+                              widget.primaryColor.withValues(alpha: 0.8),
                             ]
                           : [
-                              Colors.white.withOpacity(0.1),
-                              widget.primaryColor.withOpacity(0.4),
+                              Colors.white.withValues(alpha: 0.1),
+                              widget.primaryColor.withValues(alpha: 0.4),
                             ],
                     ),
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: widget.isNext
                           ? widget.accentColor
-                          : widget.accentColor.withOpacity(0.3),
+                          : widget.accentColor.withValues(alpha: 0.3),
                       width: widget.isNext ? 2.5 : 1.5,
                     ),
                     boxShadow: widget.isNext
                         ? [
                             BoxShadow(
-                              color: widget.accentColor.withOpacity(
-                                glowOpacity,
+                              color: widget.accentColor.withValues(
+                                alpha: glowOpacity,
                               ),
                               blurRadius: 20,
                               spreadRadius: 2,

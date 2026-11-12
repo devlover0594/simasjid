@@ -23,6 +23,12 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
 - `settings_media.dart`: dua `if (mounted)` tanpa blok diberi kurung kurawal (lint
   `curly_braces_in_flow_control_structures`).
 - `web_admin_html.dart`: `${pathSafe}` → `$pathSafe` (lint `unnecessary_brace_in_string_interps`).
+- **Tahap B — Deprecation:** `flutter analyze` turun dari **73 → 11 issue** (0 error, 0 warning,
+  0 deprecation). Semua pemanggilan API usang dimigrasikan ke API Flutter terbaru:
+  - `withOpacity(x)` → `withValues(alpha: x)` (via `dart fix`, 58 titik di 10 file).
+  - `Color.value` → `Color.toARGB32()` (mis. `Colors.amber.value`, `Colors.white.value`, `_fontColor.value`).
+  - `PopScope.onPopInvoked: (didPop)` → `onPopInvokedWithResult: (didPop, result)` pada
+    `settings_city.dart` & `settings_prayer.dart`.
 
 ### Dihapus
 - `main.dart`: field tak terbaca `_lastPrayerUpdate` (+ penulisannya), `default:` unreachable pada

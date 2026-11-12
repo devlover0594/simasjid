@@ -290,7 +290,7 @@ class _ThemeSettingsViewState extends State<ThemeSettingsView> {
                           border: Border.all(color: Colors.white24, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: Color(preset['accent']).withOpacity(0.5),
+                              color: Color(preset['accent']).withValues(alpha: 0.5),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -506,7 +506,7 @@ class _ThemeSettingsViewState extends State<ThemeSettingsView> {
                 onSelected: (_) {
                   _saveSlideshowEffect(entry.key);
                 },
-                selectedColor: Colors.tealAccent.withOpacity(0.2),
+                selectedColor: Colors.tealAccent.withValues(alpha: 0.2),
                 backgroundColor: Colors.white10,
                 labelStyle: TextStyle(
                   color: selected ? Colors.white : Colors.white70,

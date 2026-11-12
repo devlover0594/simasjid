@@ -129,7 +129,7 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             border: const Border(
               bottom: BorderSide(color: Colors.white24, width: 1),
             ),
@@ -208,9 +208,9 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.teal.shade900.withOpacity(0.9),
+        color: Colors.teal.shade900.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.amber.withOpacity(0.8), width: 2),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.8), width: 2),
         boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 10)],
       ),
       child: Row(
@@ -236,11 +236,11 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
   Widget _buildGlassCard(Map<String, String> data, int index) {
     // Warna-warni nuansa islami (Teal, Green, Blue, Purple) dengan transparansi
     final List<Color> cardColors = [
-      Colors.teal.withOpacity(0.2),
-      Colors.green.withOpacity(0.2),
-      Colors.blue.withOpacity(0.2),
-      Colors.indigo.withOpacity(0.2),
-      Colors.purple.withOpacity(0.2),
+      Colors.teal.withValues(alpha: 0.2),
+      Colors.green.withValues(alpha: 0.2),
+      Colors.blue.withValues(alpha: 0.2),
+      Colors.indigo.withValues(alpha: 0.2),
+      Colors.purple.withValues(alpha: 0.2),
     ];
 
     // Cek apakah tanggal ini adalah hari ini
@@ -257,7 +257,7 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
     }
 
     final color = isToday
-        ? Colors.amber.withOpacity(0.4)
+        ? Colors.amber.withValues(alpha: 0.4)
         : cardColors[index % cardColors.length];
 
     return Container(
@@ -272,14 +272,14 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
               color: color,
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
-                color: isToday ? Colors.amber : Colors.white.withOpacity(0.2),
+                color: isToday ? Colors.amber : Colors.white.withValues(alpha: 0.2),
                 width: isToday ? 3 : 1,
               ),
               boxShadow: [
                 BoxShadow(
                   color: isToday
-                      ? Colors.amber.withOpacity(0.3)
-                      : color.withOpacity(0.1),
+                      ? Colors.amber.withValues(alpha: 0.3)
+                      : color.withValues(alpha: 0.1),
                   blurRadius: isToday ? 20 : 10,
                   spreadRadius: isToday ? 2 : 1,
                 ),
@@ -401,7 +401,7 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
     if (widget.prayerTimes.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       child: SafeArea(
         top: false,
         child: Row(

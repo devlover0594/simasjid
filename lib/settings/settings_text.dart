@@ -76,7 +76,7 @@ class _TextSettingsViewState extends State<TextSettingsView> {
     setState(() {
       _fontSize = prefs.getDouble('${_selectedKey}_size') ?? 20.0;
       int colorVal =
-          prefs.getInt('${_selectedKey}_color') ?? Colors.white.value;
+          prefs.getInt('${_selectedKey}_color') ?? Colors.white.toARGB32();
       _fontColor = Color(colorVal);
       _fontFamily = prefs.getString('${_selectedKey}_font') ?? 'Roboto';
     });
@@ -85,7 +85,7 @@ class _TextSettingsViewState extends State<TextSettingsView> {
   void _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('${_selectedKey}_size', _fontSize);
-    await prefs.setInt('${_selectedKey}_color', _fontColor.value);
+    await prefs.setInt('${_selectedKey}_color', _fontColor.toARGB32());
     await prefs.setString('${_selectedKey}_font', _fontFamily);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

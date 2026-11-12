@@ -215,7 +215,7 @@ class _IdentitySettingsViewState extends State<IdentitySettingsView> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.teal.withOpacity(0.2),
+              color: Colors.teal.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.teal),
             ),

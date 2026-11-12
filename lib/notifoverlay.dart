@@ -47,7 +47,7 @@ class NotifOverlay extends StatelessWidget {
           ),
         ),
         // Dimmer
-        Positioned.fill(child: Container(color: Colors.black.withOpacity(0.7))),
+        Positioned.fill(child: Container(color: Colors.black.withValues(alpha: 0.7))),
         // Content
         Center(
           child: Column(

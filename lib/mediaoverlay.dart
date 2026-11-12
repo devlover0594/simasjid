@@ -186,7 +186,7 @@ class _MediaOverlayState extends State<MediaOverlay> {
               Text(
                 'Now Playing',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 18,
                 ),
               ),
@@ -235,7 +235,7 @@ class _MediaOverlayState extends State<MediaOverlay> {
                               _currentTranslation!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 18,
                               ),
                             ),

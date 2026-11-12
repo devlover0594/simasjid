@@ -173,9 +173,9 @@ class _PerformerScreenState extends State<PerformerScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           decoration: BoxDecoration(
-            color: widget.primaryColor.withOpacity(0.5),
+            color: widget.primaryColor.withValues(alpha: 0.5),
             border: Border(
-              bottom: BorderSide(color: widget.accentColor.withOpacity(0.5), width: 1.5),
+              bottom: BorderSide(color: widget.accentColor.withValues(alpha: 0.5), width: 1.5),
             ),
           ),
           child: Row(
@@ -340,11 +340,11 @@ class _PerformerScreenState extends State<PerformerScreen> {
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: widget.primaryColor.withOpacity(0.5),
+                    color: widget.primaryColor.withValues(alpha: 0.5),
                     border: Border.all(
                       color: _currentPage == index
                           ? widget.accentColor
-                          : widget.accentColor.withOpacity(0.3),
+                          : widget.accentColor.withValues(alpha: 0.3),
                       width: _currentPage == index ? 2.5 : 1.5,
                     ),
                     borderRadius: BorderRadius.circular(25),
@@ -432,7 +432,7 @@ class _PerformerScreenState extends State<PerformerScreen> {
     if (widget.prayerTimes.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      color: widget.primaryColor.withOpacity(0.8),
+      color: widget.primaryColor.withValues(alpha: 0.8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: widget.prayerTimes.map((pt) {
