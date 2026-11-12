@@ -51,6 +51,13 @@ _(belum ada)_
   dibiarkan; perbaikan ideal = refactor ke widget baris bertipe `StatefulWidget` yang memiliki controller.
 
 ### Dihapus
+- **Tahap E — File/kelas yatim (dead code):** `flutter analyze` tetap **0 issue** (type-check lintas
+  proyek memastikan tak ada referensi rusak).
+  - 5 file `lib/web_admin/` yang tidak pernah di-import/dipanggil: `web_admin_section_appearance.dart`,
+    `web_admin_section_content.dart`, `web_admin_section_dashboard.dart`, `web_admin_section_prayer_times.dart`,
+    `slide_item.dart` (duplikat `models/slide_item.dart`).
+  - Kelas `ScrollingHadith` + `_ScrollingHadithState` di `main.dart` (tidak pernah di-instaniasi;
+    `hadithscreen.dart` punya implementasi crawl sendiri).
 - `main.dart`: field tak terbaca `_lastPrayerUpdate` (+ penulisannya), `default:` unreachable pada
   dua `switch` `_getNotificationTitle/_getNotificationMessage`, dan variabel stack `st` pada `catch`.
 - `mediaoverlay.dart`: field mati `_currentAyahNumber`.
