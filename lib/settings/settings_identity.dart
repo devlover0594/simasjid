@@ -25,6 +25,13 @@ class _IdentitySettingsViewState extends State<IdentitySettingsView> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _addressCtrl.dispose();
+    super.dispose();
+  }
+
   void _load() async {
     final prefs = await SharedPreferences.getInstance();
     _nameCtrl.text = prefs.getString('mosque_name') ?? 'MASJID AL MUNTAHA';

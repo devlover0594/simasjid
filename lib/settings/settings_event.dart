@@ -120,6 +120,7 @@ class _EventSettingsViewState extends State<EventSettingsView> {
         },
       ),
     );
+    titleCtrl.dispose();
   }
 
   @override

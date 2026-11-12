@@ -116,16 +116,16 @@ class _SlideSettingsViewState extends State<SlideSettingsView> {
                         ),
                       ],
                     ),
-                    TextField(
+                    TextFormField(
                       decoration: const InputDecoration(labelText: 'Judul'),
-                      controller: TextEditingController(text: slide['title']),
+                      initialValue: slide['title'],
                       onChanged: (v) => slide['title'] = v,
                       textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 8),
-                    TextField(
+                    TextFormField(
                       decoration: const InputDecoration(labelText: 'Konten'),
-                      controller: TextEditingController(text: slide['content']),
+                      initialValue: slide['content'],
                       onChanged: (v) => slide['content'] = v,
                       maxLines: 2,
                       textInputAction: TextInputAction.done,

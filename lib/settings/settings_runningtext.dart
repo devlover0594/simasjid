@@ -18,6 +18,12 @@ class _RunningTextSettingsViewState extends State<RunningTextSettingsView> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _textCtrl.dispose();
+    super.dispose();
+  }
+
   void _load() async {
     final prefs = await SharedPreferences.getInstance();
     _textCtrl.text =

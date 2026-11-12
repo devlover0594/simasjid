@@ -28,6 +28,21 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _adzanDurationCtrl.dispose();
+    _iqomahDelayCtrl.dispose();
+    _iqomahDurationCtrl.dispose();
+    _textAdzanCtrl.dispose();
+    _textIqomahTimer.dispose();
+    _textIqomahCtrl.dispose();
+    _khutbahDurationCtrl.dispose();
+    _khutbahTextCtrl.dispose();
+    _sholatDurationCtrl.dispose();
+    _sholatTextCtrl.dispose();
+    super.dispose();
+  }
+
   void _load() async {
     final prefs = await SharedPreferences.getInstance();
     _adzanDurationCtrl.text = (prefs.getInt('notif_adzan_duration') ?? 180)

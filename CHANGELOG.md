@@ -34,6 +34,21 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
   (sebelumnya memakai `mounted` milik State yang dianggap lint "unrelated"):
   - `settings_city.dart` (1), `settings_identity.dart` (1), `settings_performer.dart` (1, pakai `ctx.mounted`),
     `settings_media.dart` (4, pakai `dialogContext.mounted`/`context.mounted`), `settings_prayer.dart` (4).
+- **Tahap D — Kebocoran `TextEditingController`:** `flutter analyze` tetap **0 issue**.
+  - Ditambah `dispose()` yang menghapus field controller: `settings_runningtext.dart` (1),
+    `settings_identity.dart` (2), `settings_notification.dart` (10), `settings_hadith.dart` (2).
+  - Controller lokal dialog kini di-`dispose()` setelah dialog selesai: `settings_event.dart` (`titleCtrl`),
+    `settings_hadith.dart` (`textCtrl`/`sourceCtrl`; `_addManualHadith` dibuat `async` + `await showDialog`).
+  - `settings_slide.dart`: `TextField(controller: TextEditingController(text:…))` inline →
+    `TextFormField(initialValue:…)` sehingga controller internal dikelola widget (bebas bocor).
+
+### Deprecated
+_(belum ada)_
+
+### Catatan tersisa (sengaja tidak diubah agar tidak menimbulkan regresi)
+- `settings_theme.dart`: dua `TextField(readOnly)` menampilkan path (`_bgPath`/`_logoPath`) via controller
+  inline tiap build. Ini bocor ringan, tetapi `initialValue` akan memutus reaktivitas tampilan path, jadi
+  dibiarkan; perbaikan ideal = refactor ke widget baris bertipe `StatefulWidget` yang memiliki controller.
 
 ### Dihapus
 - `main.dart`: field tak terbaca `_lastPrayerUpdate` (+ penulisannya), `default:` unreachable pada

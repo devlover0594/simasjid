@@ -21,6 +21,13 @@ class _HadithSettingsViewState extends State<HadithSettingsView> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _intervalCtrl.dispose();
+    _speedCtrl.dispose();
+    super.dispose();
+  }
+
   void _load() async {
     final prefs = await SharedPreferences.getInstance();
     _showHadith = prefs.getBool('hadith_show') ?? true;
@@ -61,10 +68,10 @@ class _HadithSettingsViewState extends State<HadithSettingsView> {
     ).showSnackBar(const SnackBar(content: Text('Pengaturan Hadis Disimpan')));
   }
 
-  void _addManualHadith() {
+  Future<void> _addManualHadith() async {
     final textCtrl = TextEditingController();
     final sourceCtrl = TextEditingController();
-    showDialog(
+    await showDialog(
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Tambah Hadis Manual'),
@@ -105,6 +112,8 @@ class _HadithSettingsViewState extends State<HadithSettingsView> {
         ],
       ),
     );
+    textCtrl.dispose();
+    sourceCtrl.dispose();
   }
 
   void _removeManualHadith(int index) {
