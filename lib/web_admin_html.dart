@@ -104,7 +104,6 @@ String generateAdminHtml({
   }
 
   final logoPathSafe = escapeHtml(logoPath);
-  final displayIdSafe = escapeHtml(displayId);
 
   String slidesHtml = '';
   for (int i = 0; i < slidesData.length; i++) {
@@ -169,8 +168,8 @@ String generateAdminHtml({
       <tr>
         <td style="width: 60px; text-align: center;">
           ${i + 1}
-          ${type == 'image' ? '<img src="${pathSafe}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;" onerror="this.onerror=null;this.src=\'/assets/broken_image.png\';">' : ''}
-          ${type == 'video' ? '<video src="${pathSafe}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;" preload="metadata" onloadeddata="this.currentTime=1;" onerror="this.onerror=null;this.src=\'/assets/broken_video.png\';"></video>' : ''}
+          ${type == 'image' ? '<img src="$pathSafe" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;" onerror="this.onerror=null;this.src=\'/assets/broken_image.png\';">' : ''}
+          ${type == 'video' ? '<video src="$pathSafe" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;" preload="metadata" onloadeddata="this.currentTime=1;" onerror="this.onerror=null;this.src=\'/assets/broken_video.png\';"></video>' : ''}
           ${type == 'audio' ? '<i class="icon-audio" style="font-size: 30px; margin-top: 5px; color: #607d8b;">🎵</i>' : ''}
         </td>
         <td><b>$nameSafe</b><br><span style="badge">$type</span></td>

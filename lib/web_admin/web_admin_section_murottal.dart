@@ -1,5 +1,3 @@
-import '../models/murottal_schedule.dart';
-
 String buildMurottalSection(Map<String, dynamic> params) {
   return '''
     <!-- Murottal -->

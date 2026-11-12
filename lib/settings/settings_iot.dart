@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -103,101 +100,6 @@ class _IotSettingsViewState extends State<IotSettingsView> {
     _pathOnCtrl.text = prefs.getString('iot_path_on') ?? '/on';
     _pathOffCtrl.text = prefs.getString('iot_path_off') ?? '/off';
     if (mounted) setState(() {});
-  }
-
-  Future<void> _backupSettings() async {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mempersiapkan data backup...')),
-    );
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final keys = prefs.getKeys();
-      final Map<String, dynamic> allSettings = {};
-      for (String key in keys) {
-        allSettings[key] = prefs.get(key);
-      }
-
-      final jsonString = jsonEncode(allSettings);
-      final fileName =
-          'simasjid_backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.json';
-
-      // Menggunakan file_picker untuk menyimpan file
-      String? outputFile = await FilePicker.saveFile(
-        dialogTitle: 'Simpan Backup Pengaturan',
-        fileName: fileName,
-      );
-
-      if (outputFile != null) {
-        final file = File(outputFile);
-        await file.writeAsString(jsonString);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Backup berhasil disimpan di $outputFile')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal melakukan backup: $e')));
-    }
-  }
-
-  Future<void> _restoreSettings() async {
-    try {
-      FilePickerResult? result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        final jsonString = await file.readAsString();
-        final Map<String, dynamic> settings = jsonDecode(jsonString);
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.clear(); // Hapus pengaturan lama
-
-        for (var key in settings.keys) {
-          final value = settings[key];
-          // SharedPreferences hanya mendukung tipe data dasar
-          if (value is bool) {
-            await prefs.setBool(key, value);
-          } else if (value is int) {
-            await prefs.setInt(key, value);
-          } else if (value is double) {
-            await prefs.setDouble(key, value);
-          } else if (value is String) {
-            await prefs.setString(key, value);
-          } else if (value is List) {
-            // SharedPreferences hanya bisa menyimpan List<String>
-            await prefs.setStringList(
-              key,
-              value.map((e) => e.toString()).toList(),
-            );
-          }
-        }
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Restore berhasil! Silakan restart aplikasi untuk menerapkan perubahan.',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 10),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal melakukan restore: $e')));
-    }
   }
 
   void _save() async {

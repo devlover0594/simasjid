@@ -1,12 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
-import '../api_repository.dart';
-import 'package:http/http.dart' as http;
 
 class MediaSettingsView extends StatefulWidget {
   const MediaSettingsView({super.key});
@@ -173,12 +170,13 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
         if (newItems.isNotEmpty) {
           setState(() => _library.addAll(newItems));
           _save();
-          if (mounted)
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('${newItems.length} media berhasil diimpor.'),
               ),
             );
+          }
         } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -189,10 +187,11 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
       }
     } catch (e) {
       debugPrint('Error importing from folder: $e');
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Gagal mengimpor: $e')));
+      }
     }
   }
 

@@ -29,7 +29,6 @@ class _MediaOverlayState extends State<MediaOverlay> {
   int _currentLoop = 0;
   Timer? _imageTimer;
   String? _currentSurahName;
-  int? _currentAyahNumber;
   String? _currentAyatText;
   String? _currentTranslation;
   final ScrollController _scrollController = ScrollController();

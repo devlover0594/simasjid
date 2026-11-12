@@ -155,7 +155,6 @@ class _KioskScreenState extends State<KioskScreen>
   String? _kotaId;
   String? _kotaName;
   bool _useApi = true;
-  DateTime? _lastPrayerUpdate; // Waktu pembaruan jadwal sholat terakhir
   DateTime? _anchorGregorian;
   int? _anchorHijriDay;
   int? _anchorHijriMonth;
@@ -1556,7 +1555,7 @@ class _KioskScreenState extends State<KioskScreen>
           )
           ..close();
       }
-    } catch (e, st) {
+    } catch (e) {
       request.response
         ..statusCode = HttpStatus.internalServerError
         ..write(
@@ -2273,7 +2272,6 @@ class _KioskScreenState extends State<KioskScreen>
             'last_prayer_update',
             DateTime.now().toIso8601String(),
           );
-          _lastPrayerUpdate = DateTime.now();
         } else {
           // API returned no data — fallback to manual if available
           final prefs = await SharedPreferences.getInstance();
@@ -2910,7 +2908,6 @@ class _KioskScreenState extends State<KioskScreen>
       case NotifState.countdown:
         return "MENUJU IQOMAH";
       case NotifState.none:
-      default:
         return "";
     }
   }
@@ -2935,7 +2932,6 @@ class _KioskScreenState extends State<KioskScreen>
       case NotifState.adzan:
         return "Mari Segera Menuju Masjid";
       case NotifState.none:
-      default:
         return "";
     }
   }
