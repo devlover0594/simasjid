@@ -29,6 +29,11 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
   - `Color.value` → `Color.toARGB32()` (mis. `Colors.amber.value`, `Colors.white.value`, `_fontColor.value`).
   - `PopScope.onPopInvoked: (didPop)` → `onPopInvokedWithResult: (didPop, result)` pada
     `settings_city.dart` & `settings_prayer.dart`.
+- **Tahap C — Guard `BuildContext` pasca-async:** `flutter analyze` turun dari **11 → 0 issue**
+  (bersih total). Semua pemakaian `BuildContext` setelah `await` kini dijaga dengan `context.mounted`
+  (sebelumnya memakai `mounted` milik State yang dianggap lint "unrelated"):
+  - `settings_city.dart` (1), `settings_identity.dart` (1), `settings_performer.dart` (1, pakai `ctx.mounted`),
+    `settings_media.dart` (4, pakai `dialogContext.mounted`/`context.mounted`), `settings_prayer.dart` (4).
 
 ### Dihapus
 - `main.dart`: field tak terbaca `_lastPrayerUpdate` (+ penulisannya), `default:` unreachable pada

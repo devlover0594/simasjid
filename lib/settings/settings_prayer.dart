@@ -250,7 +250,7 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
       onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldPop = await _onWillPop();
-          if (shouldPop && mounted) {
+          if (shouldPop && context.mounted) {
             Navigator.pop(context);
           }
         }
@@ -282,7 +282,7 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.setBool('use_api_prayer_times', v);
                     _checkApi();
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -431,7 +431,7 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                           _useApi =
                               prefs.getBool('use_api_prayer_times') ??
                                   true;
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -462,7 +462,7 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                           _selectedCityName = null;
                           _useApi = false;
                           setState(() => _isDialogOpen = false);
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

@@ -151,7 +151,7 @@ class _PerformerProfilesTabState extends State<_PerformerProfilesTab> {
                         // The path is updated, and when saved, it will be correct.
                         photoPath = newPath;
 
-                        if (mounted) {
+                        if (ctx.mounted) {
                           ScaffoldMessenger.of(ctx).showSnackBar(
                             SnackBar(content: Text('Foto dipilih: $fileName')),
                           );

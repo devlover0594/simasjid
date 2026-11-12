@@ -243,7 +243,7 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
           final newPath = '${directory.path}${Platform.pathSeparator}$fileName';
           await File(path).copy(newPath);
           path = newPath;
-          if (mounted) {
+          if (dialogContext.mounted) {
             ScaffoldMessenger.of(dialogContext).showSnackBar(
               const SnackBar(
                 content: Text('File berhasil diupload ke penyimpanan internal'),
@@ -255,7 +255,7 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
       }
     } catch (e) {
       debugPrint('Error picking file: $e');
-      if (mounted) {
+      if (dialogContext.mounted) {
         ScaffoldMessenger.of(
           dialogContext,
         ).showSnackBar(SnackBar(content: Text('Gagal membuka file: $e')));
@@ -475,7 +475,7 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
           final file = File(path);
           if (await file.exists()) {
             await file.delete();
-            if (mounted) {
+            if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('File fisik berhasil dihapus.')),
               );
@@ -483,7 +483,7 @@ class _MediaLibraryTabState extends State<_MediaLibraryTab> {
           }
         }
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Gagal menghapus file: $e')),
           );

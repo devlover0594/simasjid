@@ -213,7 +213,7 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
       onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldPop = await _onWillPop();
-          if (shouldPop && mounted) {
+          if (shouldPop && context.mounted) {
             Navigator.pop(context);
           }
         }

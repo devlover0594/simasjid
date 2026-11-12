@@ -178,7 +178,7 @@ class _IdentitySettingsViewState extends State<IdentitySettingsView> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear(); // Hapus semua preferensi
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Reset selesai. Silakan restart aplikasi.'),
