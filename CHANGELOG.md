@@ -41,6 +41,14 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     `settings_hadith.dart` (`textCtrl`/`sourceCtrl`; `_addManualHadith` dibuat `async` + `await showDialog`).
   - `settings_slide.dart`: `TextField(controller: TextEditingController(text:…))` inline →
     `TextFormField(initialValue:…)` sehingga controller internal dikelola widget (bebas bocor).
+- **Tahap F — Mulai restrukturisasi god-class:** `flutter analyze` tetap **0 issue**.
+  - Diperkenalkan folder `lib/services/` sebagai pola pemecahan `_KioskScreenState`.
+  - Diedstraksi kalkulasi tanggal Hijriah inkremental (±40 baris aritmetika inline di `_updateTime`)
+    menjadi `lib/services/hijri_calculator.dart` (class `HijriDate` + `HijriCalculator.advance`).
+    `main.dart` kini memanggil service; guard null anchor diperluas mencakup month/year (setara,
+    karena ketiganya selalu disimpan bersamaan).
+  - **Diverifikasi kesetaraan perilaku**: 4.005 kombinasi (anchor × diff 0–800 hari) diuji terhadap
+    algoritma lama → 0 selisih.
 
 ### Deprecated
 _(belum ada)_

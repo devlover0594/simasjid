@@ -25,6 +25,7 @@ import 'imsakiyahscreen.dart'; // Import the new screen
 import 'models/murottal_schedule.dart';
 import 'models/slide_item.dart';
 import 'performerscreen.dart';
+import 'services/hijri_calculator.dart';
 
 Future<void> main() async {
   // Pastikan binding sudah siap sebelum memanggil fungsi async
@@ -2420,45 +2421,19 @@ class _KioskScreenState extends State<KioskScreen>
       _dateString = "${now.day} ${months[now.month - 1]} ${now.year}";
 
       // Hijri date (approximation using arithmetic conversion)
-      if (_anchorGregorian != null && _anchorHijriDay != null) {
+      if (_anchorGregorian != null &&
+          _anchorHijriDay != null &&
+          _anchorHijriMonth != null &&
+          _anchorHijriYear != null) {
         // Hitung selisih hari dari data terakhir yang disimpan
         final today = DateTime(now.year, now.month, now.day);
         final diff = today.difference(_anchorGregorian!).inDays;
-
-        int hDay = _anchorHijriDay! + diff;
-        int hMonth = _anchorHijriMonth!;
-        int hYear = _anchorHijriYear!;
-
-        // Normalisasi Tanggal (Estimasi: Ganjil 30 hari, Genap 29 hari)
-        while (true) {
-          int daysInMonth = (hMonth % 2 != 0) ? 30 : 29;
-          if (hDay <= daysInMonth) break;
-          hDay -= daysInMonth;
-          hMonth++;
-          if (hMonth > 12) {
-            hMonth = 1;
-            hYear++;
-          }
-        }
-
-        final hijriMonths = [
-          'Muharram',
-          'Safar',
-          'Rabiul Awal',
-          'Rabiul Akhir',
-          'Jumadil Awal',
-          'Jumadil Akhir',
-          'Rajab',
-          "Sya'ban",
-          'Ramadhan',
-          'Syawwal',
-          'Dzulqaidah',
-          'Dzulhijah',
-        ];
-        String monthName = (hMonth >= 1 && hMonth <= 12)
-            ? hijriMonths[hMonth - 1]
-            : '';
-        _hijriDateString = "$hDay $monthName $hYear H";
+        _hijriDateString = HijriCalculator.advance(
+          anchorDay: _anchorHijriDay!,
+          anchorMonth: _anchorHijriMonth!,
+          anchorYear: _anchorHijriYear!,
+          diffDays: diff,
+        ).formatted;
       } else {
         _hijriDateString = '';
       }
