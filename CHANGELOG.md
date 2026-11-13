@@ -73,6 +73,14 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     `path`/`prayerName`) memanggil `_playAdzanAudio()` yang memutar `assets/audio/adzan.mp3` via
     `audioplayers` (`AssetSource`). Player adzan (`_adzanPlayer`) dihentikan & dilepas saat fase adzan
     selesai, saat sholat dimulai, dan di `dispose()`.
+- **Tahap G3 — Bug `MediaOverlay` (P2):** `flutter analyze` tetap **0 issue**.
+  - **B7:** callback error audio/video (`Future.delayed(3s) → onFinished`) kini diberi guard `if (!mounted)
+    return;`. Sebelumnya, media yang gagal lalu ditimpa adzan bisa memanggil `onFinished` setelah widget
+    dibuang → `_triggerRelay(false)` yang **mematikan relay adzan** (race).
+  - **B6:** tampilan gambar kini mendukung URL online — `path` diawali `http` memakai `Image.network`,
+    selainnya `Image.file` (sebelumnya gambar playlist online selalu gagal tampil).
+  - **B8 (dibiarkan, risiko rendah):** heuristik akhir video `position>=duration && !isPlaying` tetap
+    dipakai; mengubah deteksi selesai video tanpa pengujian perangkat nyata berisiko regresi.
 
 ### Deprecated
 _(belum ada)_

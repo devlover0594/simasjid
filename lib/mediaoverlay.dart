@@ -74,6 +74,8 @@ class _MediaOverlayState extends State<MediaOverlay> {
       debugPrint('Error loading audio: $e');
       if (mounted) setState(() => _hasError = true);
       Future.delayed(const Duration(seconds: 3), () {
+        if (!mounted) return; // widget sudah dibuang (mis. adzan start) → jangan
+        // memanggil onFinished agar tidak mematikan relay yang baru dinyalakan.
         if (widget.onFinished != null) widget.onFinished!();
       });
     }
@@ -112,6 +114,7 @@ class _MediaOverlayState extends State<MediaOverlay> {
       if (mounted) setState(() => _hasError = true);
       // Jika error, langsung selesaikan agar tidak stuck
       Future.delayed(const Duration(seconds: 3), () {
+        if (!mounted) return; // jangan panggil onFinished setelah widget dibuang
         if (widget.onFinished != null) widget.onFinished!();
       });
     }
@@ -261,15 +264,25 @@ class _MediaOverlayState extends State<MediaOverlay> {
                       child: VideoPlayer(_videoController!),
                     )
                   : const CircularProgressIndicator())
-            : Image.file(
-                File(widget.path),
-                fit: BoxFit.contain,
-                errorBuilder: (c, e, s) => const Icon(
-                  Icons.broken_image,
-                  color: Colors.white,
-                  size: 100,
-                ),
-              ),
+            : (widget.path.startsWith('http')
+                  ? Image.network(
+                      widget.path,
+                      fit: BoxFit.contain,
+                      errorBuilder: (c, e, s) => const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                        size: 100,
+                      ),
+                    )
+                  : Image.file(
+                      File(widget.path),
+                      fit: BoxFit.contain,
+                      errorBuilder: (c, e, s) => const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                        size: 100,
+                      ),
+                    )),
       ),
     );
   }
