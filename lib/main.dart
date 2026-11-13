@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'settings.dart';
 import 'dart:convert';
 import 'api_repository.dart';
@@ -197,6 +198,14 @@ class _KioskScreenState extends State<KioskScreen>
   Timer? _mediaEndTimer;
   MurottalSchedule? _currentMurottalSchedule; // To store current murottal job
 
+  // Jejak kejadian yang sudah dijalankan HARI INI (adzan/media/murottal/tarhim),
+  // agar pemicu tidak lagi bergantung pada tepat `second==0` dan tidak dobel.
+  // Di-reset setiap pukul 00:00.
+  final Set<String> _firedToday = <String>{};
+
+  // Player audio adzan terpisah (prioritas tertinggi).
+  AudioPlayer? _adzanPlayer;
+
   // Murottal Schedule State
   List<MurottalSchedule> _murottalSchedules = [];
 
@@ -337,6 +346,10 @@ class _KioskScreenState extends State<KioskScreen>
     _mediaEndTimer?.cancel();
     _hadithTimer?.cancel();
     _rotationTimer?.cancel();
+    // Hentikan & lepas audio adzan (fire-and-forget; dispose tidak bisa await).
+    _adzanPlayer?.stop();
+    _adzanPlayer?.dispose();
+    _adzanPlayer = null;
     _logoController.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
@@ -2430,6 +2443,7 @@ class _KioskScreenState extends State<KioskScreen>
 
       // Cleanup data yang sudah terlewati setiap hari baru (jam 00:00)
       if (now.hour == 0 && now.minute == 0) {
+        _firedToday.clear(); // reset jejak pemicu harian
         _cleanupExpiredData();
         // Perbarui jadwal sholat setiap hari baru agar data tidak usang
         // ketika aplikasi berjalan terus-menerus (kiosk/TV).
@@ -2611,21 +2625,21 @@ class _KioskScreenState extends State<KioskScreen>
     // Jika media sedang aktif, tidak perlu cek jadwal baru (tunggu selesai)
     if (_isMediaActive) return;
 
-    final currentTimeStr =
-        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    final currentMin = now.hour * 60 + now.minute;
     final currentDay = now.weekday; // 1 = Senin, 7 = Ahad
 
-    // Cek detik 0 agar trigger hanya sekali per menit
-    if (now.second != 0) return;
+    for (int i = 0; i < _mediaSchedules.length; i++) {
+      final item = _mediaSchedules[i];
+      final tm = _minutesFromHm(item['time']?.toString());
+      if (tm == null || tm != currentMin) continue;
+      final days = item['days'];
+      if (days is! List || !days.contains(currentDay)) continue;
 
-    for (var item in _mediaSchedules) {
-      if (item['time'] == currentTimeStr) {
-        List<dynamic> days = item['days'];
-        if (days.contains(currentDay)) {
-          _startMedia(item);
-          break;
-        }
-      }
+      final key = 'media:$i';
+      if (_firedToday.contains(key)) continue;
+      _firedToday.add(key);
+      _startMedia(item);
+      break;
     }
   }
 
@@ -2633,10 +2647,8 @@ class _KioskScreenState extends State<KioskScreen>
     // Don't check if any media/notification is already active
     if (_isMediaActive || _notifState != NotifState.none) return;
 
-    // Check only once per minute
-    if (now.second != 0) return;
-
     // --- Logika Baru: Tarhim -> Murottal (sebelum Adzan) ---
+    // Tidak lagi dibatasi `second==0`; pencegahan dobel ditangani `_firedToday`.
     for (var schedule in _murottalSchedules) {
       // Cek apakah ada jadwal yang cocok untuk diputar (Tarhim atau Murottal).
       // Fungsi ini akan mengembalikan true jika ada media yang dimulai, agar loop berhenti.
@@ -2676,6 +2688,9 @@ class _KioskScreenState extends State<KioskScreen>
 
       if (now.hour == tarhimStartTime.hour &&
           now.minute == tarhimStartTime.minute) {
+        final tkey = 'tarhim:$prayerName';
+        if (_firedToday.contains(tkey)) return false; // sudah diputar hari ini
+        _firedToday.add(tkey);
         final tarhimItem = {
           'path': 'assets/audio/tarhim.mp3', // Langsung gunakan path dari asset
           'type': 'audio', // Tarhim selalu audio
@@ -2697,6 +2712,8 @@ class _KioskScreenState extends State<KioskScreen>
 
     // Check if it's time to start
     if (now.hour == startTime.hour && now.minute == startTime.minute) {
+      final mkey = 'murottal:$prayerName';
+      if (_firedToday.contains(mkey)) return false; // sudah diputar hari ini
       final sourceType = schedule.sourceType;
       final isRandom = schedule.isRandom;
       String? mediaPath;
@@ -2752,6 +2769,7 @@ class _KioskScreenState extends State<KioskScreen>
           'surah_number': initialSurahNumber, // agar lanjut surah acak benar
         };
         _currentMurottalSchedule = schedule; // Save the schedule for looping
+        _firedToday.add(mkey); // tandai sudah dijalankan hari ini
         _startMurottal(murottalItem); // Memulai Murottal
         return true; // Murottal dimulai, hentikan proses
       }
@@ -2769,9 +2787,40 @@ class _KioskScreenState extends State<KioskScreen>
       _currentMurottalSchedule = null;
       _currentMediaItem = null;
     });
-    // Relay/amplifier TIDAK dinyalakan di sini. Relay akan dinyalakan oleh
-    // _startAdzanSequence() yang dipanggil tepat setelah fungsi ini, agar
-    // relay tidak sempat ON lalu seketika OFF.
+    // Putar audio adzan sungguhan. (Sebelumnya fungsi ini mengabaikan path &
+    // tidak memicu player, sehingga adzan selalu senyap.) Relay/amplifier
+    // dinyalakan oleh _startAdzanSequence() yang dipanggil tepat setelah ini.
+    _playAdzanAudio(path);
+  }
+
+  /// Memutar file audio adzan (aset aplikasi `assets/...` atau file absolut).
+  Future<void> _playAdzanAudio(String path) async {
+    try {
+      await _stopAdzanAudio();
+      final player = AudioPlayer();
+      _adzanPlayer = player;
+      if (path.startsWith('assets/')) {
+        await player.play(AssetSource(path.replaceFirst('assets/', '')));
+      } else {
+        await player.play(DeviceFileSource(path));
+      }
+    } catch (e) {
+      debugPrint('Adzan audio error: $e');
+    }
+  }
+
+  /// Menghentikan & melepas player audio adzan.
+  Future<void> _stopAdzanAudio() async {
+    final player = _adzanPlayer;
+    _adzanPlayer = null;
+    if (player != null) {
+      try {
+        await player.stop();
+      } catch (_) {}
+      try {
+        player.dispose();
+      } catch (_) {}
+    }
   }
 
   void _startMurottal(Map<String, dynamic> item) {
@@ -2855,29 +2904,30 @@ class _KioskScreenState extends State<KioskScreen>
   }
 
   void _checkPrayerTime(DateTime now) {
-    // Simple check: if current HH:mm:ss matches a prayer time :00
-    // We only trigger if state is none to avoid re-triggering
+    // Jangan trigger jika sedang ada notifikasi aktif (hindari tumpang tindih).
     if (_notifState != NotifState.none) return;
 
-    final currentTimeStr =
-        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
-
-    // Check if seconds is 0 to trigger exactly at the minute
-    if (now.second != 0) return;
+    final currentMin = now.hour * 60 + now.minute;
 
     for (var p in _prayerTimes) {
-      if (p.time == currentTimeStr) {
-        // Cek apakah ada jadwal murottal yang mengaktifkan adzan untuk waktu sholat ini
-        final adzanSchedule = _murottalSchedules.any(
-          (s) => s.prayer == p.name && s.adzanEnabled,
-        );
-        if (adzanSchedule) {
-          _startAdzanAudio('assets/audio/adzan.mp3', p.name);
-        }
+      final pm = _minutesFromHm(p.time);
+      if (pm == null || pm != currentMin) continue;
 
-        _startAdzanSequence(p.name);
-        break;
+      // Sudah dijalankan hari ini untuk waktu sholat ini? lewati.
+      final key = 'adzan:${p.name}';
+      if (_firedToday.contains(key)) continue;
+      _firedToday.add(key);
+
+      // Cek apakah ada jadwal murottal yang mengaktifkan adzan untuk waktu sholat ini
+      final adzanSchedule = _murottalSchedules.any(
+        (s) => s.prayer == p.name && s.adzanEnabled,
+      );
+      if (adzanSchedule) {
+        _startAdzanAudio('assets/audio/adzan.mp3', p.name);
       }
+
+      _startAdzanSequence(p.name);
+      break;
     }
   }
 
@@ -2982,6 +3032,9 @@ class _KioskScreenState extends State<KioskScreen>
     // Timer for Adzan Display
     _notifTimer?.cancel();
     _notifTimer = Timer(Duration(seconds: _notifAdzanDuration), () {
+      // Audio adzan dihentikan saat fase tampilan adzan selesai (agar tidak
+      // menumpuk dengan countdown/khutbah/iqomah).
+      _stopAdzanAudio();
       // Cek apakah ini sholat Jumat (Hari Jumat dan waktu Dzuhur)
       if (effectivePrayerName == 'Jumat' &&
           now.weekday == DateTime.friday &&
@@ -3044,6 +3097,7 @@ class _KioskScreenState extends State<KioskScreen>
   }
 
   void _startSholatSequence() {
+    _stopAdzanAudio(); // pengaman: pastikan audio adzan tidak tersisa
     setState(() {
       _notifState = NotifState.sholat;
     });

@@ -61,6 +61,18 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     yang bisa `FormatException`/`RangeError` (mis. `PrayerTime('','')` dari `orElse`, atau entri manual "7:5").
   - **B4:** item murottal API awal kini menyertakan `'surah_number'` (surah pertama, termasuk hasil acak),
     sehingga `onFinished` melanjutkan ke surah berikutnya dengan benar — bukan selalu kembali ke Al-Baqarah.
+- **Tahap G2 — Kepatuhan jadwal & audio adzan (P2):** `flutter analyze` tetap **0 issue**.
+  - **B3 (TINGGI):** pemicu adzan/media/murottal/tarhim **tidak lagi bergantung pada tepat `second==0`**.
+    Ditambah `Set<String> _firedToday` (di-reset tiap 00:00): tiap kejadian dicek **setiap detik** dan
+    dipicu sekali per hari via kunci (`adzan:<nama>`, `media:<index>`, `tarhim:<nama>`, `murottal:<nama>`).
+    Kini jadwal tetap jalan meski satu tick terlambat/terlewat, dan tidak memicu dobel. Guard prioritas
+    (notif/media aktif) dipertahankan, tapi kejadian bisa menyusul di detik lain pada menit yang sama.
+  - **B5:** pencocokan waktu memakai **menit-terparse** (`_minutesFromHm`) alih-alih perbandingan string
+    `"HH:mm"`, sehingga entri manual tak ternormalisasi (mis. "7:5") tetap cocok dengan jam "07:05".
+  - **B2 (TINGGI):** **audio adzan kini benar-benar diputar.** `_startAdzanAudio` (sebelumnya mengabaikan
+    `path`/`prayerName`) memanggil `_playAdzanAudio()` yang memutar `assets/audio/adzan.mp3` via
+    `audioplayers` (`AssetSource`). Player adzan (`_adzanPlayer`) dihentikan & dilepas saat fase adzan
+    selesai, saat sholat dimulai, dan di `dispose()`.
 
 ### Deprecated
 _(belum ada)_
