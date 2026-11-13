@@ -140,8 +140,9 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
   }
 
   /// Mengambil jadwal sholat terbaru dari API untuk kota yang tersimpan dan
-  /// menyimpankannya ke cache (custom_prayer_times) serta mencatat waktu
-  /// pembaruan agar layar utama dan settings dapat menampilkan data yang segar.
+  /// menyimpankannya ke cache API TERPISAH (`api_prayer_cache`, bukan
+  /// `custom_prayer_times` yang merupakan jadwal manual user) serta mencatat
+  /// waktu pembaruan agar layar utama menampilkan data yang segar.
   Future<void> _refreshPrayerTimes() async {
     final prefs = await SharedPreferences.getInstance();
     final kotaId = prefs.getString('kota_id');
@@ -160,7 +161,7 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
           times[p] = res[p] ?? res[p.toLowerCase()] ?? '--:--';
         }
         await prefs.setString(
-          'custom_prayer_times',
+          'api_prayer_cache',
           jsonEncode(
             times.entries.map((e) => {'name': e.key, 'time': e.value}).toList(),
           ),

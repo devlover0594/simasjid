@@ -2249,7 +2249,7 @@ class _KioskScreenState extends State<KioskScreen>
 
   Future<void> _loadPrayerTimes() async {
     if (!_useApi) {
-      // Manual mode selected, nothing to fetch from API
+      // Mode manual: waktu sudah dimuat dari custom_prayer_times di _loadSettings.
       return;
     }
 
@@ -2258,77 +2258,64 @@ class _KioskScreenState extends State<KioskScreen>
         kotaId: _kotaId,
         kotaName: _kotaName,
       );
-      if (mounted) {
-        if (data != null && data.isNotEmpty) {
-          setState(() {
-            final order = ['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'];
-            _prayerTimes = order
-                .map(
-                  (name) => PrayerTime(
-                    name,
-                    data[name] ?? (data[name.toLowerCase()] ?? '--:--'),
-                  ),
-                )
-                .toList();
-          });
-          // Simpan hasil API ke SharedPreferences agar tersedia offline
-          // dan catat waktu pembaruan untuk deteksi jadwal yang usang.
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(
-            'custom_prayer_times',
-            jsonEncode(
-              _prayerTimes
-                  .map((p) => {'name': p.name, 'time': p.time})
-                  .toList(),
-            ),
-          );
-          await prefs.setString(
-            'last_prayer_update',
-            DateTime.now().toIso8601String(),
-          );
-        } else {
-          // API returned no data — fallback to manual if available
-          final prefs = await SharedPreferences.getInstance();
-          final prayerJson = prefs.getString('custom_prayer_times');
-          if (prayerJson != null) {
-            try {
-              final List decoded = jsonDecode(prayerJson);
-              if (mounted) {
-                setState(() {
-                  _prayerTimes = decoded
-                      .map(
-                        (e) => PrayerTime(
-                          e['name'] as String,
-                          e['time'] as String,
-                        ),
-                      )
-                      .toList();
-                });
-              }
-            } catch (_) {
-              // fallthrough to defaults
-            }
-          }
-        }
+      if (!mounted) return;
+      if (data != null && data.isNotEmpty) {
+        final order = ['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'];
+        setState(() {
+          _prayerTimes = order
+              .map(
+                (name) => PrayerTime(
+                  name,
+                  data[name] ?? (data[name.toLowerCase()] ?? '--:--'),
+                ),
+              )
+              .toList();
+        });
+        // Simpan hasil API ke CACHE TERPISAH (api_prayer_cache), BUKAN ke
+        // custom_prayer_times — agar jadwal manual milik user tidak tertimpa.
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'api_prayer_cache',
+          jsonEncode(
+            _prayerTimes
+                .map((p) => {'name': p.name, 'time': p.time})
+                .toList(),
+          ),
+        );
+        await prefs.setString(
+          'last_prayer_update',
+          DateTime.now().toIso8601String(),
+        );
+      } else {
+        // API tidak mengembalikan data — pakai cache/manual.
+        await _applyCachedPrayerTimes();
       }
     } catch (e) {
-      // On error, try manual times as fallback
-      final prefs = await SharedPreferences.getInstance();
-      final prayerJson = prefs.getString('custom_prayer_times');
-      if (prayerJson != null) {
-        try {
-          final List decoded = jsonDecode(prayerJson);
-          if (mounted) {
-            setState(() {
-              _prayerTimes = decoded
-                  .map(
-                    (e) => PrayerTime(e['name'] as String, e['time'] as String),
-                  )
-                  .toList();
-            });
-          }
-        } catch (_) {}
+      debugPrint('loadPrayerTimes error: $e');
+      await _applyCachedPrayerTimes();
+    }
+  }
+
+  /// Fallback saat API offline/gagal: pakai cache API terakhir
+  /// (`api_prayer_cache`); jika belum ada, baru pakai jadwal manual
+  /// (`custom_prayer_times`) agar layar tidak kosong.
+  Future<void> _applyCachedPrayerTimes() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonStr =
+        prefs.getString('api_prayer_cache') ??
+        prefs.getString('custom_prayer_times');
+    if (jsonStr == null) return;
+    try {
+      final List decoded = jsonDecode(jsonStr);
+      if (mounted) {
+        setState(() {
+          _prayerTimes = decoded
+              .map((e) => PrayerTime(e['name'] as String, e['time'] as String))
+              .toList();
+        });
       }
+    } catch (_) {
+      // abaikan data korup; pertahankan nilai saat ini
     }
   }
 

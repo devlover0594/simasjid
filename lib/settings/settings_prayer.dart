@@ -171,9 +171,9 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
           _statusColor = Colors.orange;
         }
       });
-      // Simpan hasil ke SharedPreferences di luar setState (operasi async)
+      // Simpan hasil API ke cache terpisah (jangan menimpa jadwal manual user).
       if (res != null && res.isNotEmpty) {
-        await prefs.setString('custom_prayer_times', jsonEncode(_times));
+        await prefs.setString('api_prayer_cache', jsonEncode(_times));
         await prefs.setString(
           'last_prayer_update',
           DateTime.now().toIso8601String(),
