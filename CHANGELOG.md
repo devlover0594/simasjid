@@ -50,6 +50,18 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
   - **Diverifikasi kesetaraan perilaku**: 4.005 kombinasi (anchor × diff 0–800 hari) diuji terhadap
     algoritma lama → 0 selisih.
 
+### Diperbaiki
+- **Tahap G1 — Crash-proofing & kepatuhan jadwal (P2, audio/media):** `flutter analyze` tetap **0 issue**.
+  - **B1 (KRITIS):** `_updateTime` (dipanggil `Timer.periodic` 1 detik) kini membungkus tiap pengecekan
+    jadwal (`_checkPrayerTime`/`_checkMediaSchedule`/`_checkMurottalSchedule`/`_checkForActivePerformerEvent`/
+    `_checkPowerTvSchedule`) dalam `try/catch`. Sebelumnya satu data waktu korup melempar exception yang
+    **mematikan seluruh timer otomasi** (jam + semua jadwal berhenti sampai restart).
+  - Ditambah helper `_minutesFromHm()` (parse "HH:mm"/"H:m" → menit, `null` bila tak valid). Dipakai di
+    `_processSingleMurottalSchedule` dan `_checkPowerTvSchedule` untuk mengganti `int.parse`/`split` mentah
+    yang bisa `FormatException`/`RangeError` (mis. `PrayerTime('','')` dari `orElse`, atau entri manual "7:5").
+  - **B4:** item murottal API awal kini menyertakan `'surah_number'` (surah pertama, termasuk hasil acak),
+    sehingga `onFinished` melanjutkan ke surah berikutnya dengan benar — bukan selalu kembali ke Al-Baqarah.
+
 ### Deprecated
 _(belum ada)_
 

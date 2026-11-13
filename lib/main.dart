@@ -2380,16 +2380,53 @@ class _KioskScreenState extends State<KioskScreen>
 
   // (Dihapus: _fetchPrayerTimes tidak digunakan)
 
+  /// Parse "HH:mm" (atau "H:m") menjadi total menit sejak 00:00.
+  /// Mengembalikan `null` bila format tidak valid — mencegah `int.parse` melempar
+  /// exception yang bisa mematikan timer penjadwal.
+  int? _minutesFromHm(String? hm) {
+    if (hm == null) return null;
+    final parts = hm.trim().split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    if (h < 0 || h > 23 || m < 0 || m > 59) return null;
+    return h * 60 + m;
+  }
+
   void _updateTime() {
     final DateTime now = DateTime.now();
-    _checkPrayerTime(now);
-    _checkMediaSchedule(now);
-    _checkMurottalSchedule(now); // This now handles both file and API
+    // Setiap pengecekan jadwal dibungkus try/catch agar satu data waktu yang
+    // korup (mis. entri manual "7:5" atau jadwal sholat kosong) tidak melempar
+    // exception ke Timer.periodic dan mematikan SELURUH otomasi (jam + jadwal).
+    try {
+      _checkPrayerTime(now);
+    } catch (e) {
+      debugPrint('checkPrayerTime error: $e');
+    }
+    try {
+      _checkMediaSchedule(now);
+    } catch (e) {
+      debugPrint('checkMediaSchedule error: $e');
+    }
+    try {
+      _checkMurottalSchedule(now); // handles both file and API
+    } catch (e) {
+      debugPrint('checkMurottalSchedule error: $e');
+    }
 
     // Cek jadwal performer sekali per menit
     if (now.second == 0) {
-      _checkForActivePerformerEvent();
-      _checkPowerTvSchedule(now);
+      try {
+        _checkForActivePerformerEvent();
+      } catch (e) {
+        debugPrint('checkForActivePerformerEvent error: $e');
+      }
+      try {
+        _checkPowerTvSchedule(now);
+      } catch (e) {
+        debugPrint('checkPowerTvSchedule error: $e');
+      }
 
       // Cleanup data yang sudah terlewati setiap hari baru (jam 00:00)
       if (now.hour == 0 && now.minute == 0) {
@@ -2459,10 +2496,8 @@ class _KioskScreenState extends State<KioskScreen>
       final days = (schedule['days'] ?? '1,2,3,4,5,6,7').split(',');
       if (!days.contains(dayOfWeek)) continue;
 
-      final onParts = (schedule['on'] ?? "04:00").split(':');
-      final offParts = (schedule['off'] ?? "21:00").split(':');
-      final onMin = int.parse(onParts[0]) * 60 + int.parse(onParts[1]);
-      final offMin = int.parse(offParts[0]) * 60 + int.parse(offParts[1]);
+      final onMin = _minutesFromHm(schedule['on']?.toString()) ?? (4 * 60);
+      final offMin = _minutesFromHm(schedule['off']?.toString()) ?? (21 * 60);
 
       if (onMin < offMin) {
         if (nowMin >= onMin && nowMin < offMin) {
@@ -2622,18 +2657,13 @@ class _KioskScreenState extends State<KioskScreen>
       (p) => p.name == prayerName,
       orElse: () => PrayerTime('', ''),
     );
-    if (prayer.time == '--:--') return false;
-
-    final prayerTimeParts = prayer.time.split(':');
-    final prayerHour = int.parse(prayerTimeParts[0]);
-    final prayerMinute = int.parse(prayerTimeParts[1]);
+    final prayerMinutes = _minutesFromHm(prayer.time);
+    if (prayerMinutes == null) return false;
     final prayerDateTime = DateTime(
       now.year,
       now.month,
       now.day,
-      prayerHour,
-      prayerMinute,
-    );
+    ).add(Duration(minutes: prayerMinutes));
 
     // Calculate start time
     final startTime = prayerDateTime.subtract(Duration(minutes: minutesBefore));
@@ -2671,6 +2701,8 @@ class _KioskScreenState extends State<KioskScreen>
       final isRandom = schedule.isRandom;
       String? mediaPath;
       String mediaType = 'audio'; // Default to audio for API
+      int? initialSurahNumber; // untuk API: surah pertama yang diputar (agar
+      // lanjutan surah berikutnya dihitung dari sini, bukan selalu dari 1/2)
 
       if (sourceType == 'api') {
         final qari = schedule.qari ?? 'Abdullah-Al-Juhany';
@@ -2680,6 +2712,7 @@ class _KioskScreenState extends State<KioskScreen>
           // Random surah from 1 to 114
           surahNumber = (DateTime.now().millisecondsSinceEpoch % 114) + 1;
         }
+        initialSurahNumber = surahNumber;
 
         final surahNumberPadded = surahNumber.toString().padLeft(3, '0');
         final qariSlug = qari.replaceAll(' ', '-');
@@ -2716,6 +2749,7 @@ class _KioskScreenState extends State<KioskScreen>
           'play_count': schedule.loopCount,
           'stop_before_adzan': schedule.stopBeforeAdzan,
           'prayer_time': prayerDateTime, // Pass prayer time for stop logic
+          'surah_number': initialSurahNumber, // agar lanjut surah acak benar
         };
         _currentMurottalSchedule = schedule; // Save the schedule for looping
         _startMurottal(murottalItem); // Memulai Murottal
