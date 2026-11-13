@@ -225,7 +225,7 @@ Semua layar konten adalah `StatefulWidget` yang **menerima data via prop dari ma
 | `settings_performer.dart` (539) | 2 tab: profil petugas (`performer_profiles`: id/nama/peran/foto) & jadwal (`performer_schedules`: nama acara, rentang tanggal, checkbox petugas). | **Jadwal tidak bisa diedit dari UI** (fungsi edit ada tapi tak dirujuk); controller dialog bocor. |
 | `settings_powertv.dart` (325) | `power_tv_enabled` + `power_schedules` (jam ON/OFF + FilterChip hari, validasi days). | Eksekusi sebenarnya di `_checkPowerTvSchedule` main.dart. |
 | `settings_iot.dart` (367) | `iot_ip/path_on/path_off`; kartu status polling 4 dtk (`GET http://ip/status`), tombol Test ON/OFF. | `_checkConnection` dipanggil **per keystroke** IP; backup/restore duplikat tak terpakai. |
-| `settings_imsakiyah.dart` (163) | `show_imsakiyah_screen` + provinsi/kota EQuran. | **Bug**: `_fetchCities` menghapus `_selectedCity` hasil load → kota tersimpan hilang dari UI & bisa tertulis `''`. |
+| `settings_imsakiyah.dart` (163) | `show_imsakiyah_screen` + provinsi/kota EQuran. | ~~**Bug**: `_fetchCities` menghapus `_selectedCity` hasil load~~ **DIPERBAIKI (H)**: `_fetchCities(clearSelection)`, load awal pertahankan kota. |
 
 
 ## 7. WEB ADMIN (PORT 8088)
@@ -352,11 +352,11 @@ Reverse tunnel via `dartssh2`: `connect()` (35–86) → `SSHSocket.connect(host
 1. ✅ **Audio adzan tidak pernah diputar** — DIPERBAIKI (G2): `_startAdzanAudio` kini memutar `assets/audio/adzan.mp3` via `audioplayers`; player dihentikan saat transisi & `dispose()`.
 2. ✅ **Crash loop potensial** — DIPERBAIKI (G1): `_updateTime` membungkus tiap cek jadwal dalam `try/catch`; `int.parse`/`split` diganti helper `_minutesFromHm` (aman untuk `''`, `'--:--'`, "7:5", dsb).
 3. ✅ **Slot pemicu terlewat** — DIPERBAIKI (G2): pemicu tak lagi `second==0`; pakai `Set _firedToday` (reset 00:00) sehingga kejadian tetap jalan di detik mana pun pada menitnya, sekali per hari.
-4. ⏳ **Jadwal manual tertimpa cache API**: `_loadPrayerTimes` menyimpan hasil API ke `custom_prayer_times` — key yang sama dengan input manual. *(belum)*
+4. ✅ **Jadwal manual tertimpa cache API** — DIPERBAIKI (H): key dipisah `custom_prayer_times` (manual) vs `api_prayer_cache` (hasil API); fallback offline `_applyCachedPrayerTimes` baca cache API dulu, baru manual.
 5. ✅ **Lanjutan surah murottal API acak salah** — DIPERBAIKI (G1): item awal menyertakan `'surah_number'` sehingga `currentSurah` benar & surah berikutnya lanjut dengan tepat.
 6. ⏳ **Double-response di 5+ handler** (`add_media` dll; `_redirect()` setelah close) *(bagian Web Admin → P1)*.
 7. ⏳ **Web admin** (toggle apply-all, toast upload, `/#null`, remote palsu, dropdown) *(→ P1)*.
-8. ⏳ **Settings**: bug hilang-kota imsakiyah, inkonsistensi hapus-kota, restore backup tak atomik. *(belum)*
+8. ✅/⏳ **Settings**: bug hilang-kota **imsakiyah — DIPERBAIKI (H)** (`_fetchCities` + `clearSelection`). *Belum:* hapus-kota settings_city tak mematikan `use_api`, restore backup tak atomik.
 9. ⏳ **Pesan countdown Jumat terbalik** (nama sudah 'Jumat'). *(belum — dampaknya kecil krn Jumat pakai jalur khutbah, bukan countdown)*
 10. ✅ **Layar `MediaOverlay`** — DIPERBAIKI sebagian (G3): gambar online kini `Image.network`; callback error diberi guard `mounted` (mencegah race relay adzan). Heuristik akhir video (B8) dibiarkan (risiko rendah).
 

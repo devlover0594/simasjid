@@ -81,6 +81,20 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     selainnya `Image.file` (sebelumnya gambar playlist online selalu gagal tampil).
   - **B8 (dibiarkan, risiko rendah):** heuristik akhir video `position>=duration && !isPlaying` tetap
     dipakai; mengubah deteksi selesai video tanpa pengujian perangkat nyata berisiko regresi.
+- **Tahap H — Bug jadwal manual & pengaturan imsakiyah (P2 lanjutan):** `flutter analyze` tetap **0 issue**.
+  - **Item 4 (jadwal manual tertimpa cache API):** `custom_prayer_times` dipakai ganda (input manual + cache
+    hasil API), sehingga setiap fetch API sukses menimpa jadwal manual user. Kini **dipisah jadi dua key**:
+    - `custom_prayer_times` → **khusus jadwal manual** (ditulis hanya oleh `settings_prayer._save` & field
+      `prayer_<Nama>` di web admin).
+    - `api_prayer_cache` → **khusus cache hasil API** (ditulis `main._loadPrayerTimes`,
+      `settings_city._refreshPrayerTimes`, `settings_prayer._checkApi`).
+    Fallback offline `_loadPrayerTimes` kini membaca `api_prayer_cache` dulu, baru `custom_prayer_times`
+    (helper baru `_applyCachedPrayerTimes`). Cek API tidak lagi senyap menimpa jadwal tersimpan.
+  - **Item 8 (settings imsakiyah — kota terpilih hilang):** `_fetchCities` selalu mengatur
+    `_selectedCity = null`, termasuk saat load awal dari prefs → kota tersimpan terhapus dari UI dan
+    `_saveSettings` berikutnya menulis `imsakiyah_city=''`. Ditambah parameter `clearSelection`
+    (default `true`); `_loadSettings` memanggil dengan `clearSelection: false` agar kota tersimpan
+    dipertahankan, sementara pergantian provinsi tetap mereset kota.
 
 ### Deprecated
 _(belum ada)_

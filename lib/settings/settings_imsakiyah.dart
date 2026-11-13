@@ -34,7 +34,8 @@ class _ImsakiyahSettingsViewState extends State<ImsakiyahSettingsView> {
 
     await _fetchProvinces();
     if (_selectedProvince != null) {
-      await _fetchCities(_selectedProvince!);
+      // Saat memuat awal, JANGAN hapus kota terpilih yang tersimpan dari prefs.
+      await _fetchCities(_selectedProvince!, clearSelection: false);
     }
     if (mounted) setState(() {});
   }
@@ -63,11 +64,18 @@ class _ImsakiyahSettingsViewState extends State<ImsakiyahSettingsView> {
     }
   }
 
-  Future<void> _fetchCities(String province) async {
+  Future<void> _fetchCities(
+    String province, {
+    bool clearSelection = true,
+  }) async {
     setState(() {
       _isLoadingCities = true;
       _cities = []; // Clear previous cities
-      _selectedCity = null; // Clear selected city
+      // Hanya reset kota saat provinsi benar-benar berganti (bukan saat load
+      // awal), agar kota tersimpan tidak hilang & tidak tertulis ''.
+      if (clearSelection) {
+        _selectedCity = null;
+      }
     });
     final fetchedCities = await _apiRepository.fetchCitiesShalatEQuran(
       province,
