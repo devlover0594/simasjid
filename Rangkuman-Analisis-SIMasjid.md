@@ -19,10 +19,11 @@ Ringkasan tahap perapihan kode yang sudah dikerjakan dan diverifikasi `flutter a
 | D | `dispose()` controller pada 6 halaman settings + `TextFormField` untuk field dinamis | 0 (tetap bersih) |
 | E | Hapus 5 file yatim `web_admin/` + kelas `ScrollingHadith` | 0 (type-check lolos) |
 | F | Mulai restrukturisasi god-class: ekstraksi `HijriCalculator` ke `lib/services/` | 0 (diverifikasi 4.005 kasus) |
+| G1 | **Bug P2:** crash-proof `_updateTime` (try/catch per cek) + helper `_minutesFromHm` (ganti `int.parse` rawan) + propagasi `surah_number` murottal | 0 |
+| G2 | **Bug P2:** pemicu jadwal → pola *due + `_firedToday`* (bukan `second==0`), pencocokan per-menit, **audio adzan nyata** via `audioplayers` | 0 |
+| G3 | **Bug P2:** guard `mounted` pada error callback `MediaOverlay` + dukungan gambar online (`Image.network`) | 0 |
 
-`main.dart` turun dari 4.047 → **3.595 baris**. **Belum dikerjakan** (menunggu keputusan prioritas):
-P1 Keamanan Web Admin, P2 bug logika inti, dan lanjutan P3 (pecah god-class penuh, `com.example`→
-package id, signing release, PIN Settings, `assets/elements/bgnotif.png`).
+`main.dart` turun dari 4.047 → **±4.000 baris**. **Status P2 (bug audio/media/jadwal): SELESAI** — lihat §11.2 (B1–B7 diperbaiki, B8 dibiarkan). **Belum dikerjakan**: P1 Keamanan Web Admin (ditunda ke akhir sesuai permintaan), lanjutan P3 (pecah god-class penuh, `com.example`→package id, signing release, PIN Settings, `assets/elements/bgnotif.png`).
 
 ---
 
@@ -345,16 +346,19 @@ Reverse tunnel via `dartssh2`: `connect()` (35–86) → `SSHSocket.connect(host
 
 ### 11.2 Bug fungsional — TINGGI
 
-1. **Audio adzan tidak pernah diputar**: `_startAdzanAudio` (2755) mengabaikan parameternya dan tidak memicu player; `adzan.mp3` asset terbit tapi tak ada jalur pemutaran.
-2. **Crash loop potensial**: `int.parse` tanpa guard pada parsing waktu sholat (2655–2656) dan power TV (2491–2492) di dalam `_updateTime` yang dipanggil timer tanpa try — format tak terduga (mis. dari TextField manual Settings yang tak tervalidasi) menjatuhkan scheduler.
-3. **Slot pemicu terlewat**: adzan/media/murottal hanya bereaksi saat `second==0`; jika guard notif/media aktif pada detik itu, kejadian dilewati total (2601–2611).
-4. **Jadwal manual tertimpa cache API**: `_loadPrayerTimes` menyimpan hasil API ke `custom_prayer_times` (2264) — key yang sama dipakai input manual; setelah API sukses, nilai manual hilang/tercampur.
-5. **Lanjutan surah murottal API acak salah**: item awal tak memuat `surah_number` → `onFinished` menghitung `(null ?? 1)+1 = 2` → setelah surah acak, berikutnya selalu Al-Baqarah (3192).
-6. **Double-response di 5+ handler** (`add_media` 1252, `add_media_library` 1319, `add_event` 1628, `add_performer_profile` 1702, `add_performer_schedule` 1787; terparah `import_folder` 1430–1439): `_redirect()` dipanggil setelah JSON close → `StateError` tertelan log.
-7. **Web admin**: toggle "Terapkan ke Semua Layar" salah form → tidak pernah tersimpan (section_tema:39 vs main 1002); upload background selalu memunculkan toast error (302 vs ekspektasi JSON interceptor); 13 form tanpa hidden `section` → redirect `/#null` lalu reload → **user selalu terlempar ke dashboard menu tiap simpan**; form Remote selalu "sukses" palsu; dropdown kota/provinsi tidak menandai nilai tersimpan (versi JS dengan sinkronisasi `selected` tertimpa dead code).
-8. **Settings**: imsakiyah — `_fetchCities` menghapus kota terpilih saat load → prefs bisa tertulis `''`; hapus kota dari settings_city tidak mematikan `use_api` (inkonsisten dengan settings_prayer) → layar utama kehilangan jadwal; restore backup tidak atomik (`prefs.clear()` dulu) → gagal di tengah = semua pengaturan hilang.
-9. **Pesan countdown Jumat terbalik** (2927–2933): kondisi `'Dzuhur' + Jumat` tak pernah benar saat mode Jumat ON (nama sudah diganti 'Jumat').
-10. Layar `MediaOverlay`: `Image.file` tidak mendukung URL http (gambar playlist online selalu gagal); callback error `Future.delayed(3 dtk) → onFinished` tanpa guard `mounted`; heuristik akhir video rawan menghitung loop ganda.
+> **Status 13 Nov 2026:** item 1, 2, 3, 5, 10 **sudah diperbaiki** (tahap G1–G3, audio/media/jadwal).
+> Item 6, 7 (Web Admin) ditunda ke P1. Item 4, 8, 9 belum.
+
+1. ✅ **Audio adzan tidak pernah diputar** — DIPERBAIKI (G2): `_startAdzanAudio` kini memutar `assets/audio/adzan.mp3` via `audioplayers`; player dihentikan saat transisi & `dispose()`.
+2. ✅ **Crash loop potensial** — DIPERBAIKI (G1): `_updateTime` membungkus tiap cek jadwal dalam `try/catch`; `int.parse`/`split` diganti helper `_minutesFromHm` (aman untuk `''`, `'--:--'`, "7:5", dsb).
+3. ✅ **Slot pemicu terlewat** — DIPERBAIKI (G2): pemicu tak lagi `second==0`; pakai `Set _firedToday` (reset 00:00) sehingga kejadian tetap jalan di detik mana pun pada menitnya, sekali per hari.
+4. ⏳ **Jadwal manual tertimpa cache API**: `_loadPrayerTimes` menyimpan hasil API ke `custom_prayer_times` — key yang sama dengan input manual. *(belum)*
+5. ✅ **Lanjutan surah murottal API acak salah** — DIPERBAIKI (G1): item awal menyertakan `'surah_number'` sehingga `currentSurah` benar & surah berikutnya lanjut dengan tepat.
+6. ⏳ **Double-response di 5+ handler** (`add_media` dll; `_redirect()` setelah close) *(bagian Web Admin → P1)*.
+7. ⏳ **Web admin** (toggle apply-all, toast upload, `/#null`, remote palsu, dropdown) *(→ P1)*.
+8. ⏳ **Settings**: bug hilang-kota imsakiyah, inkonsistensi hapus-kota, restore backup tak atomik. *(belum)*
+9. ⏳ **Pesan countdown Jumat terbalik** (nama sudah 'Jumat'). *(belum — dampaknya kecil krn Jumat pakai jalur khutbah, bukan countdown)*
+10. ✅ **Layar `MediaOverlay`** — DIPERBAIKI sebagian (G3): gambar online kini `Image.network`; callback error diberi guard `mounted` (mencegah race relay adzan). Heuristik akhir video (B8) dibiarkan (risiko rendah).
 
 ### 11.3 Code smell / kebersihan — SEDANG–RENDAH
 
