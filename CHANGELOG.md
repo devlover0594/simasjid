@@ -95,6 +95,33 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     `_saveSettings` berikutnya menulis `imsakiyah_city=''`. Ditambah parameter `clearSelection`
     (default `true`); `_loadSettings` memanggil dengan `clearSelection: false` agar kota tersimpan
     dipertahankan, sementara pergantian provinsi tetap mereset kota.
+- **Tahap I — Fokus DPAD/remote di menu Settings (P3):** `flutter analyze` tetap **0 issue**.
+  - **DP1 (TINGGI — soft keyboard langsung muncul saat fokus mendarat di field):** `TextField` biasa
+    di Android TV otomatis memunculkan keyboard begitu fokus D-pad masuk ke field, sehingga tombol
+    arah "terkunci" ke keyboard dan pengguna **tidak bisa berpindah ke text field lain**. Ditambah
+    komponen reusable `lib/widgets/tv_focus.dart`: `TvTextField` mengikuti pola resmi Android TV
+    *readOnly-until-selected* — field hanya menyorot (border teal) saat difokus, dan keyboard baru
+    terbuka setelah user menekan **OK/Select/Enter/Space/Game-A**; Back/Escape/kehilangan fokus
+    menutup keyboard sambil menahan fokus di field agar navigasi lanjut. `TvKeyboardScope` +
+    `TvKeyboardController` membagikan status "sedang mengetik" ke layar induk.
+    Diterapkan pada field editable di menu Settings: `settings_identity.dart` (2),
+    `settings_notification.dart` (10), `settings_prayer.dart` (5 waktu sholat),
+    `settings_iot.dart` (3), `settings_runningtext.dart` (1), `settings_hadith.dart` (interval & durasi),
+    `settings_city.dart` (kolom cari; `autofocus` dihapus agar keyboard tidak muncul sendiri).
+  - **DP2 (TINGGI — tombol back langsung menutup seluruh menu Settings):** `SettingsScreen`
+    (`settings.dart`) tidak punya `PopScope`, sehingga saat keyboard terbuka dan user menekan back
+    (berharap keyboard tertutup), route Settings ikut ter-pop → menu tertutup. Kini `SettingsScreen`
+    dibungkus `PopScope(canPop:false)` + `TvKeyboardScope`: **back pertama menutup keyboard**
+    (`_kb.closeEditing()`), back kedua baru keluar Settings. Item rail "Keluar" tetap menutup langsung.
+  - **Perapian terkait:** `settings_prayer.dart` — logika keyboard kosmetik yang mati
+    (`_isKeyboardOpen`, `_openKeyboard`, `_closeKeyboard`, `_activeTextFieldIndex`) dan `PopScope`
+    ganda (yang bentrok dengan PopScope level SettingsScreen) dihapus; `onTap`/`onEditingComplete`
+    pada field waktu diganti `TvTextField`. `settings_city.dart` (route sendiri) kini juga menutup
+    keyboard lebih dulu via `_kb` sebelum mengizinkan pop.
+  - **Dibatasi (menghindari regresi):** field di dalam *dialog* (`showDialog`) — media/performer/event/
+    hadith-manual — tidak diubah: dialog adalah route terpisah sehingga back sudah menutup dialog (bukan
+    Settings), dan field path media memakai `readOnly`/`autofocus` kondisional yang berisiko bila diganti.
+    Field `readOnly` tampilan path di `settings_theme.dart` juga dipertahankan.
 
 ### Deprecated
 _(belum ada)_

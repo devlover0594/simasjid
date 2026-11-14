@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../widgets/tv_focus.dart';
 
 // ---------------- IoT Settings ----------------
 
@@ -209,7 +210,7 @@ class _IotSettingsViewState extends State<IotSettingsView> {
           const SizedBox(height: 20),
           _buildStatusCard(),
           const SizedBox(height: 20),
-          TextField(
+          TvTextField(
             controller: _ipCtrl,
             onChanged: (_) => _checkConnection(),
             decoration: const InputDecoration(
@@ -221,7 +222,7 @@ class _IotSettingsViewState extends State<IotSettingsView> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TvTextField(
                   controller: _pathOnCtrl,
                   decoration: const InputDecoration(
                     labelText: 'Path ON',
@@ -241,7 +242,7 @@ class _IotSettingsViewState extends State<IotSettingsView> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TvTextField(
                   controller: _pathOffCtrl,
                   decoration: const InputDecoration(
                     labelText: 'Path OFF',

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../widgets/tv_focus.dart';
 
 // ---------------- Subpages ----------------
 
@@ -206,13 +207,13 @@ class _IdentitySettingsViewState extends State<IdentitySettingsView> {
           ),
           const Divider(),
           const SizedBox(height: 10),
-          TextField(
+          TvTextField(
             controller: _nameCtrl,
             decoration: const InputDecoration(labelText: 'Nama Masjid'),
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _addressCtrl,
             decoration: const InputDecoration(labelText: 'Alamat'),
             textInputAction: TextInputAction.done,

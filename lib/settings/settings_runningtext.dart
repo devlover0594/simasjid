@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/tv_focus.dart';
 
 class RunningTextSettingsView extends StatefulWidget {
   const RunningTextSettingsView({super.key});
@@ -54,7 +55,7 @@ class _RunningTextSettingsViewState extends State<RunningTextSettingsView> {
           ),
           const Divider(),
           const SizedBox(height: 10),
-          TextField(
+          TvTextField(
             controller: _textCtrl,
             maxLines: 3,
             decoration: const InputDecoration(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../api_repository.dart';
+import '../widgets/tv_focus.dart';
 import 'settings_city.dart';
 
 class PrayerSettingsView extends StatefulWidget {
@@ -25,11 +26,6 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
   // Persistent controllers + focus nodes for prayer time TextFields
   final List<TextEditingController> _timeControllers = [];
   final List<FocusNode> _timeFocusNodes = List.generate(5, (_) => FocusNode());
-
-  // Track overlay state for PopScope back-button handling
-  bool _isKeyboardOpen = false;
-  bool _isDialogOpen = false;
-  int? _activeTextFieldIndex; // which TextField triggered the keyboard
 
   final List<Map<String, String>> _times = [
     {'name': 'Subuh', 'time': '--:--'},
@@ -182,44 +178,6 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
     }
   }
 
-  // ============ Floating keyboard focus management ============
-  void _openKeyboard(int textFieldIndex) {
-    setState(() {
-      _isKeyboardOpen = true;
-      _activeTextFieldIndex = textFieldIndex;
-    });
-    // Pindah fokus ke tombol keyboard (simulasi tombol keyboard di sini;
-    // ganti dengan FocusNode tombol keyboard asli Anda saat integrasi)
-    _saveButtonFocus.requestFocus();
-  }
-
-  void _closeKeyboard() {
-    setState(() {
-      _isKeyboardOpen = false;
-    });
-    // Kembalikan fokus ke TextField asal
-    if (_activeTextFieldIndex != null &&
-        _activeTextFieldIndex! < _timeFocusNodes.length) {
-      _timeFocusNodes[_activeTextFieldIndex!].requestFocus();
-    }
-    _activeTextFieldIndex = null;
-  }
-
-  // ============ PopScope back-button handler ============
-  Future<bool> _onWillPop() async {
-    // Jika keyboard atau dialog sedang terbuka, tutup dulu
-    if (_isKeyboardOpen) {
-      _closeKeyboard();
-      return false;
-    }
-    if (_isDialogOpen) {
-      setState(() => _isDialogOpen = false);
-      return false;
-    }
-    // Semua overlay sudah tertutup, izinkan pop
-    return true;
-  }
-
   // Helper: visual indicator saat widget dapat fokus (remote friendly)
   Widget _focusedContainer({
     required bool hasFocus,
@@ -245,19 +203,9 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (!didPop) {
-          final shouldPop = await _onWillPop();
-          if (shouldPop && context.mounted) {
-            Navigator.pop(context);
-          }
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FocusTraversalGroup(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: FocusTraversalGroup(
           policy: OrderedTraversalPolicy(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,14 +362,12 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                     child: TextButton(
                       focusNode: _pickCityFocus,
                       onPressed: () async {
-                        setState(() => _isDialogOpen = true);
                         final res = await Navigator.push<bool?>(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const CitySettingScreen(),
                           ),
                         );
-                        setState(() => _isDialogOpen = false);
                         if (res == true) {
                           // reload saved city and mark using API
                           final prefs =
@@ -452,7 +398,6 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                       child: TextButton(
                         focusNode: _deleteCityFocus,
                         onPressed: () async {
-                          setState(() => _isDialogOpen = true);
                           final prefs =
                               await SharedPreferences.getInstance();
                           await prefs.remove('kota_id');
@@ -461,7 +406,6 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                               'use_api_prayer_times', false);
                           _selectedCityName = null;
                           _useApi = false;
-                          setState(() => _isDialogOpen = false);
                           if (!context.mounted) return;
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -496,12 +440,11 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
                   const SizedBox(width: 8),
                   SizedBox(
                     width: 140,
-                    child: TextField(
+                    child: TvTextField(
                       focusNode: _timeFocusNodes[index],
                       controller: _timeControllers[index],
                       onChanged: (v) => t['time'] = v,
-                      onTap: () => _openKeyboard(index),
-                      onEditingComplete: _closeKeyboard,
+                      keyboardType: TextInputType.datetime,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
@@ -528,8 +471,7 @@ class _PrayerSettingsViewState extends State<PrayerSettingsView> {
         ],
       ),
       ),
-    ),
-  );
+    );
   }
 }
 

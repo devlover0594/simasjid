@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api_repository.dart';
+import '../widgets/tv_focus.dart';
 
 // ---------------- City Setting ----------------
 
@@ -21,6 +22,9 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
 
   // Track dialog state for PopScope back-button handling
   bool _isDialogOpen = false;
+
+  // Controller keyboard TV: tombol back menutup keyboard lebih dulu.
+  final TvKeyboardController _kb = TvKeyboardController();
 
   final ApiRepository _api = ApiRepository();
   List<Map<String, String>> _cities = [];
@@ -178,6 +182,11 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
 
   // ============ PopScope back-button handler ============
   Future<bool> _onWillPop() async {
+    // Keyboard sedang terbuka: tutup dulu, jangan keluar layar.
+    if (_kb.isEditing) {
+      _kb.closeEditing();
+      return false;
+    }
     if (_isDialogOpen) {
       setState(() => _isDialogOpen = false);
       return false;
@@ -219,7 +228,9 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
           }
         }
       },
-      child: Scaffold(
+      child: TvKeyboardScope(
+        controller: _kb,
+        child: Scaffold(
         appBar: AppBar(
           title: const Text('Pilih Kota'),
           backgroundColor: Colors.black87,
@@ -296,10 +307,9 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
               ),
               const SizedBox(height: 12),
             ],
-            TextField(
+            TvTextField(
               focusNode: _searchFocus,
               controller: _searchCtrl,
-              autofocus: true,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
@@ -364,6 +374,7 @@ class _CitySettingScreenState extends State<CitySettingScreen> {
       ),
     ),
   ),
+      ),
   );
   }
 }

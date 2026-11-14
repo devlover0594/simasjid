@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/tv_focus.dart';
 
 class NotificationSettingsView extends StatefulWidget {
   const NotificationSettingsView({super.key});
@@ -123,7 +124,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
           ),
           const Divider(),
           const SizedBox(height: 10),
-          TextField(
+          TvTextField(
             controller: _adzanDurationCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -132,7 +133,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _iqomahDelayCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -141,7 +142,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _iqomahDurationCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -150,7 +151,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _textAdzanCtrl,
             decoration: const InputDecoration(
               labelText: 'Teks Judul Adzan',
@@ -158,7 +159,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _textIqomahTimer,
             decoration: const InputDecoration(
               labelText: 'Teks Timer Iqomah',
@@ -167,7 +168,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _textIqomahCtrl,
             decoration: const InputDecoration(
               labelText: 'Pesan Iqomah',
@@ -180,7 +181,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const Divider(),
-          TextField(
+          TvTextField(
             controller: _sholatDurationCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -188,7 +189,7 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
               helperText: 'Layar akan kembali normal setelah durasi ini',
             ),
           ),
-          TextField(
+          TvTextField(
             controller: _sholatTextCtrl,
             decoration: const InputDecoration(labelText: 'Pesan Saat Sholat'),
           ),
@@ -205,14 +206,14 @@ class _NotificationSettingsViewState extends State<NotificationSettingsView> {
             value: _fridayModeEnabled,
             onChanged: (v) => setState(() => _fridayModeEnabled = v),
           ),
-          TextField(
+          TvTextField(
             controller: _khutbahDurationCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: 'Durasi Khutbah (menit)',
             ),
           ),
-          TextField(
+          TvTextField(
             controller: _khutbahTextCtrl,
             maxLines: 2,
             decoration: const InputDecoration(labelText: 'Pesan Khutbah'),

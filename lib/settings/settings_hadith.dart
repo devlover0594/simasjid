@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../widgets/tv_focus.dart';
 
 class HadithSettingsView extends StatefulWidget {
   const HadithSettingsView({super.key});
@@ -143,7 +144,7 @@ class _HadithSettingsViewState extends State<HadithSettingsView> {
             },
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _intervalCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
@@ -152,7 +153,7 @@ class _HadithSettingsViewState extends State<HadithSettingsView> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
+          TvTextField(
             controller: _speedCtrl,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
