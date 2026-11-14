@@ -55,6 +55,21 @@ const String adminScriptJs = r'''
       document.getElementById('back-button').style.display = 'none';
       document.getElementById('page-title').innerText = 'Dashboard';
     }
+
+    // Buka kembali section dari URL hash (#sectionId) sehingga setelah reload
+    // (mis. sehabis menyimpan) pengguna tidak terlempar ke Dashboard.
+    function openSectionByHash() {
+      const id = (window.location.hash || '').replace('#', '');
+      if (!id) return;
+      const sec = document.getElementById(id);
+      if (!sec || !sec.classList.contains('section')) return;
+      let item = null;
+      document.querySelectorAll('#main-menu .menu-item').forEach(m => {
+        const oc = m.getAttribute('onclick') || '';
+        if (oc.indexOf("'" + id + "'") !== -1) item = m;
+      });
+      if (item) showSection(id, item);
+    }
     
     function toggleAccordion(headerElement) {
         headerElement.classList.toggle('active');
@@ -401,9 +416,11 @@ const String adminScriptJs = r'''
 
                     if (result.status === 'success') {
                         showToast(result.message || 'Operasi berhasil!', 'success');
-                        // Setelah sukses, redirect ke section yang sama untuk me-refresh data
+                        // Setelah sukses, kembali ke section yang sama untuk me-refresh data.
                         setTimeout(() => {
-                            window.location.href = `/#${section}`;
+                            if (section && section !== 'null') {
+                                window.location.hash = section;
+                            }
                             window.location.reload(); // Reload halaman untuk memuat data terbaru
                         }, 1000); // Beri waktu toast muncul
                     } else {
@@ -424,6 +441,9 @@ const String adminScriptJs = r'''
                 }
             });
         });
+
+        // Pulihkan section aktif dari hash (mis. sehabis reload setelah simpan).
+        openSectionByHash();
     });
   </script>
 ''';

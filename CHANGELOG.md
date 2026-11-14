@@ -122,6 +122,26 @@ Jenis perubahan: `Ditambahkan` (added) · `Diubah` (changed) · `Diperbaiki` (fi
     hadith-manual — tidak diubah: dialog adalah route terpisah sehingga back sudah menutup dialog (bukan
     Settings), dan field path media memakai `readOnly`/`autofocus` kondisional yang berisiko bila diganti.
     Field `readOnly` tampilan path di `settings_theme.dart` juga dipertahankan.
+- **Tahap J — UI Web Admin dirapikan (P3):** `flutter analyze` tetap **0 issue**.
+  - **Redesign CSS** (`web_admin_style.dart`): sistem desain bersih & mobile-first — palet variabel
+    lengkap (tambah `--primary-dark` yang sebelumnya direferensikan tapi tak pernah didefinisikan),
+    topbar sticky, kartu solid (glassmorphism `backdrop-filter` berat dihapus), `.badge` nyata + varian
+    warna per tipe media, tabel rapi (header uppercase, garis/hover baris, `code` word-break, `.table-wrap`
+    scroll), varian tombol (`btn-secondary`/`btn-danger`), `.form-grid` dua kolom, `.help`, chip
+    `.checkbox-group`, toggle dirapikan, `focus-visible`, dan breakpoint ≤768px. CSS `.sidebar` yang
+    **tidak pernah dirender** (dead) dihapus.
+  - **Fix markup** (`web_admin_html.dart`): `<span style="badge">` (properti CSS tidak valid) →
+    `<span class="badge badge-<tipe>">`; header inline → `class="topbar"`; blok Murottal diperbaiki
+    (buang `.card` bersarang + `<h3>Waktu:` dobel, seluruh kontrol dipindah ke dalam `accordion-content`
+    agar accordion benar menutup isi; hapus background teal inline).
+  - **Fix UX simpan** (`web_admin_script.dart`): tambah `openSectionByHash()` + panggil saat
+    `DOMContentLoaded` sehingga setelah reload user **kembali ke section yang sama** (bukan Dashboard);
+    reload dibuat `location.hash = section` (guard `null`) menggantikan `/#${section}` yang menghasilkan
+    `/#null`.
+  - **Alat dev** (`tool/gen_admin_preview.dart`, baru): perender HTML admin dengan data dummy untuk
+    inspeksi UI di browser tanpa menjalankan TV (`dart run tool/gen_admin_preview.dart <out.html>`).
+  - **Ditunda (rekomendasi, lihat `Rekomendasi-UI-WebAdmin.md`):** hapus duplikasi fungsi JS kota/API,
+    konfirmasi hapus inline (ganti `confirm()`), validasi klien, ikon seragam, mode gelap, dan audit XSS §11.1.
 
 ### Deprecated
 _(belum ada)_

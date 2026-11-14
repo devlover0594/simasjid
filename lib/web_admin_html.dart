@@ -142,7 +142,7 @@ String generateAdminHtml({
         '''
         <tr>
           <td>${i + 1}</td>
-          <td><span style="badge">${m['type']}</span><br><small>${m['path']}</small></td>
+          <td><span class="badge badge-${m['type']}">${m['type']}</span><br><small><code>${m['path']}</code></small></td>
           <td>${m['time']} ($loopInfo)<br><small>Hari: ${m['days']}</small></td>
           <td style="text-align:center">
             <button onclick="editMedia($i, '$pathSafe', '$type', '$time', $isLoop, $playCount, '$days')" class="btn-edit">[Edit]</button>
@@ -172,8 +172,8 @@ String generateAdminHtml({
           ${type == 'video' ? '<video src="$pathSafe" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;" preload="metadata" onloadeddata="this.currentTime=1;" onerror="this.onerror=null;this.src=\'/assets/broken_video.png\';"></video>' : ''}
           ${type == 'audio' ? '<i class="icon-audio" style="font-size: 30px; margin-top: 5px; color: #607d8b;">🎵</i>' : ''}
         </td>
-        <td><b>$nameSafe</b><br><span style="badge">$type</span></td>
-        <td><small>$pathSafe</small></td>
+        <td><b>$nameSafe</b><br><span class="badge badge-$type">$type</span></td>
+        <td><small><code>$pathSafe</code></small></td>
         <td style="text-align:center">
            <button onclick="editMediaLib($i, '$nameSafe', '$pathSafe', '$type', '$id')" class="btn-edit">[Edit]</button>
            <a href="/delete_media_library?i=$i&section=media" class="btn-delete">[Hapus]</a>
@@ -353,49 +353,46 @@ String generateAdminHtml({
 
     murottalSchedulesHtml +=
         '''
-      <div class="card" style="margin-bottom:15px; background: #f0fdfa;">
-        <h3>Waktu: <b>$prayerName</b></h3>
       <div class="accordion-item">
         <div class="$headerClass" onclick="toggleAccordion(this)">
-          <h3>Waktu: <b>$prayerName</b></h3>
+          <h3>$prayerName</h3>
           <span class="accordion-icon"></span>
         </div>
         <div class="accordion-content" style="display: $initialDisplay;">
           <input type="hidden" name="murottal_${prayerName}_prayer" value="$prayerName">
-          <h4 style="margin-top:10px; margin-bottom:10px;">Pengaturan Tarhim & Adzan Otomatis</h4>
-          <p style="font-size:0.85em; color:#666; margin-bottom:15px;">Aktifkan untuk memutar file <code>tarhim.mp3</code> dan <code>adzan.mp3</code> dari folder aset perangkat secara otomatis.</p>
-          <div class="row" style="align-items:center; margin-bottom: 10px; background: #e0f2f1; padding: 8px; border-radius: 6px;">
-              <div class="col"><label>Aktifkan Tarhim</label><select name="murottal_${prayerName}_tarhim_enabled"><option value="true" ${tarhimEnabled ? 'selected' : ''}>Ya</option><option value="false" ${!tarhimEnabled ? 'selected' : ''}>Tidak</option></select></div>
-              <div class="col"><label>Mulai Tarhim (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_tarhim_minutes_before" value="$tarhimMinutesBefore"></div>
-              <div class="col"><label>Putar Audio Adzan</label><select name="murottal_${prayerName}_adzan_enabled"><option value="true" ${adzanEnabled ? 'selected' : ''}>Ya</option><option value="false" ${!adzanEnabled ? 'selected' : ''}>Tidak</option></select></div>
+          <h4>Tarhim & Adzan Otomatis</h4>
+          <p class="help">Aktifkan untuk memutar file <code>tarhim.mp3</code> dan <code>adzan.mp3</code> dari folder aset perangkat secara otomatis.</p>
+          <div class="row">
+            <div class="col"><label>Aktifkan Tarhim</label><select name="murottal_${prayerName}_tarhim_enabled"><option value="true" ${tarhimEnabled ? 'selected' : ''}>Ya</option><option value="false" ${!tarhimEnabled ? 'selected' : ''}>Tidak</option></select></div>
+            <div class="col"><label>Mulai Tarhim (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_tarhim_minutes_before" value="$tarhimMinutesBefore"></div>
+            <div class="col"><label>Putar Audio Adzan</label><select name="murottal_${prayerName}_adzan_enabled"><option value="true" ${adzanEnabled ? 'selected' : ''}>Ya</option><option value="false" ${!adzanEnabled ? 'selected' : ''}>Tidak</option></select></div>
           </div>
-          <h4 style="margin-top:20px; margin-bottom:10px;">Pengaturan Murottal</h4>
-        </div>
-        <div class="row" style="align-items:center;">
-          <div class="col"><label>Aktifkan Murottal</label><select name="murottal_${prayerName}_enabled"><option value="true" ${enabled ? 'selected' : ''}>Ya</option><option value="false" ${!enabled ? 'selected' : ''}>Tidak</option></select></div>
-          <div class="col"><label>Mulai (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_minutes_before" value="$minutesBefore"></div>
-          <div class="col"><label>Berhenti (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_stop_before_adzan" value="$stopBefore"></div>
-        </div>
-        <div class="row" style="align-items:center; margin-top:10px;">
-          <div class="col" style="flex:2">
-            <label>Sumber Murottal</label>
-            <select name="murottal_${prayerName}_source_type" onchange="toggleMurottalSource(this, '$prayerName')">
-              <option value="file" ${sourceType == 'file' ? 'selected' : ''}>File dari Playlist</option>
-              <option value="api" ${sourceType == 'api' ? 'selected' : ''}>Streaming Surah (API)</option>
-            </select>
+          <h4>Pengaturan Murottal</h4>
+          <div class="row">
+            <div class="col"><label>Aktifkan Murottal</label><select name="murottal_${prayerName}_enabled"><option value="true" ${enabled ? 'selected' : ''}>Ya</option><option value="false" ${!enabled ? 'selected' : ''}>Tidak</option></select></div>
+            <div class="col"><label>Mulai (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_minutes_before" value="$minutesBefore"></div>
+            <div class="col"><label>Berhenti (Menit Sebelum Adzan)</label><input type="number" name="murottal_${prayerName}_stop_before_adzan" value="$stopBefore"></div>
           </div>
-        </div>
-        <div id="murottal_source_file_$prayerName" class="murottal-source-div" style="display:${sourceType == 'file' ? 'block' : 'none'}; margin-top:10px;">
-          <label>Pilih File</label><select name="murottal_${prayerName}_path"><option value="">-- Tidak Ada --</option>$currentMediaLibOptions</select>
-        </div>
-        <div id="murottal_source_api_$prayerName" class="murottal-source-div row" style="display:${sourceType == 'api' ? 'flex' : 'none'}; margin-top:10px; align-items:flex-end;">
-          <div class="col" style="flex:2"><label>Pilih Qori</label><select name="murottal_${prayerName}_qari">${qaris.map((q) => '<option value="$q" ${q == qari ? 'selected' : ''}>$q</option>').join('')}</select></div>
-          <div class="col"><label>Pilih Surah</label><select name="murottal_${prayerName}_surah_number">${surahs.map((s) => '<option value="${s['n']}" ${s['n'] == surahNumber ? 'selected' : ''}>${s['n']}. ${s['name']}</option>').join('')}</select></div>
-        </div>
-        <div class="row" style="align-items:center; margin-top:10px;">
-          <div class="col"><label>Acak?</label><select name="murottal_${prayerName}_is_random"><option value="false" ${!isRandom ? 'selected' : ''}>Tidak</option><option value="true" ${isRandom ? 'selected' : ''}>Ya</option></select></div>
-          <div class="col"><label>Loop</label><input type="number" name="murottal_${prayerName}_loop_count" value="$loopCount"></div>
-        </div>
+          <div class="row">
+            <div class="col" style="flex:2">
+              <label>Sumber Murottal</label>
+              <select name="murottal_${prayerName}_source_type" onchange="toggleMurottalSource(this, '$prayerName')">
+                <option value="file" ${sourceType == 'file' ? 'selected' : ''}>File dari Playlist</option>
+                <option value="api" ${sourceType == 'api' ? 'selected' : ''}>Streaming Surah (API)</option>
+              </select>
+            </div>
+          </div>
+          <div id="murottal_source_file_$prayerName" class="murottal-source-div" style="display:${sourceType == 'file' ? 'block' : 'none'};">
+            <label>Pilih File</label><select name="murottal_${prayerName}_path"><option value="">-- Tidak Ada --</option>$currentMediaLibOptions</select>
+          </div>
+          <div id="murottal_source_api_$prayerName" class="murottal-source-div row" style="display:${sourceType == 'api' ? 'flex' : 'none'};">
+            <div class="col" style="flex:2"><label>Pilih Qori</label><select name="murottal_${prayerName}_qari">${qaris.map((q) => '<option value="$q" ${q == qari ? 'selected' : ''}>$q</option>').join('')}</select></div>
+            <div class="col"><label>Pilih Surah</label><select name="murottal_${prayerName}_surah_number">${surahs.map((s) => '<option value="${s['n']}" ${s['n'] == surahNumber ? 'selected' : ''}>${s['n']}. ${s['name']}</option>').join('')}</select></div>
+          </div>
+          <div class="row">
+            <div class="col"><label>Acak?</label><select name="murottal_${prayerName}_is_random"><option value="false" ${!isRandom ? 'selected' : ''}>Tidak</option><option value="true" ${isRandom ? 'selected' : ''}>Ya</option></select></div>
+            <div class="col"><label>Loop</label><input type="number" name="murottal_${prayerName}_loop_count" value="$loopCount"></div>
+          </div>
         </div>
       </div>''';
   }
@@ -748,9 +745,9 @@ $adminScriptJs
 <body>
   <div class="main-container">
     <div class="content">
-      <div style="display: flex; align-items: center; margin-bottom: 20px;">
-        <button id="back-button" onclick="showMainMenu()" style="display: none; width: auto; padding: 10px 15px; margin-right: 15px; background: #64748b;">&#8592; Kembali</button>
-        <h1 id="page-title" style="margin: 0; color: var(--text-primary);">Dashboard</h1>
+      <div class="topbar">
+        <button id="back-button" onclick="showMainMenu()" style="display: none;">&#8592; Kembali</button>
+        <h1 id="page-title">Dashboard</h1>
       </div>
 
       <div id="main-menu">
