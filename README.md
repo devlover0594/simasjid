@@ -97,3 +97,4 @@ Aplikasi ini dioptimalkan untuk layar besar (TV) dengan orientasi **Landscape**.
 
 *© 2026 YUSUF FAISAL | DEVLOVER | KORNET INTER MEDIA. Free for non-commercial use in Mosques.*
 "# simasjid" 
+"# simasjid" 
